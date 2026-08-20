@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Editor · Resume Builder</title>
+<link rel="icon" href="data:,">
+<style>
+  /* ═══════════════════ RESET & BASE ═══════════════════ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #dde2e8;
+    color: #1f2a36;
+    overflow-x: auto;
+    font-size: 14px;
+  }
+
+  /* ═══════════════════ TOOLBAR ═══════════════════ */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 10px 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 2px solid #0ea5e9;
+  }
+  .tb-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tb-top { justify-content: space-between; }
+  .tb-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tb-title { font-weight: 700; font-size: .95em; letter-spacing: .4px; color: #38bdf8; text-decoration: none; }
+  .status-tag {
+    font-size: .72em; padding: 2px 9px; border-radius: 12px;
+    background: #0b1220; color: #94a3b8; font-weight: 600; border: 1px solid #334155;
+  }
+  .status-tag.active { background: #064e3b; color: #6ee7b7; border-color: #047857; }
+
+  .btn {
+    background: #334155; color: #f1f5f9; border: 1px solid #475569;
+    padding: 6px 13px; border-radius: 6px; font-size: .82em; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: all .15s ease; user-select: none; white-space: nowrap;
+  }
+  .btn:hover { background: #475569; border-color: #64748b; }
+  .btn-primary { background: #0284c7; border-color: #0369a1; color: #fff; }
+  .btn-primary:hover { background: #0369a1; }
+  .btn-warning { background: #f59e0b; border-color: #d97706; color: #fff; }
+  .btn-warning:hover { background: #d97706; }
+  .btn-outline { background: transparent; border-color: #475569; }
+  .btn-outline:hover { background: #1e293b; }
+
+  .ctl {
+    background: #1e293b; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 6px; padding: 6px 10px; font-size: .82em; font-weight: 600; cursor: pointer;
+  }
+  .ctl:hover { border-color: #64748b; }
+
+  .tb-hint { font-size: .72em; color: #94a3b8; }
+
+  .gauge { display: flex; align-items: center; gap: 7px; }
+  .gauge-label { font-size: .75em; color: #94a3b8; font-weight: 600; }
+  .gauge-track { width: 92px; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; border: 1px solid #334155; }
+  .gauge-fill { height: 100%; width: 0%; background: #34d399; transition: width .2s ease; border-radius: 4px; }
+  .gauge-fill.over { background: #f87171; }
+  .gauge-num { font-size: .75em; color: #94a3b8; font-weight: 600; min-width: 34px; text-align: right; }
+  .gauge-num.over { color: #f87171; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff;
+    padding: 12px 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,.3);
+    border-left: 4px solid #38bdf8; font-size: .9em; z-index: 10000; display: none;
+    max-width: 340px;
+  }
+
+  /* ═══════════════════ PAGE (A4) ═══════════════════ */
+  .page-wrapper { display: flex; justify-content: center; padding: 28px 16px 40px; }
+
+  .resume-page {
+    width: 210mm;
+    height: 297mm;
+    background: #fff;
+    box-shadow: 0 6px 28px rgba(0,0,0,.22);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 9pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.edit-mode .resume-page { overflow: auto; }
+
+  /* Fonts */
+  .resume-page[data-font="system"]      { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+  .resume-page[data-font="georgia"]     { font-family: Georgia, 'Times New Roman', serif; }
+  .resume-page[data-font="helv"]        { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  .resume-page[data-font="calibri"]     { font-family: Calibri, 'Segoe UI', Tahoma, Arial, sans-serif; }
+  .resume-page[data-font="arial"]       { font-family: Arial, Helvetica, sans-serif; }
+  .resume-page[data-font="verdana"]     { font-family: Verdana, Geneva, sans-serif; }
+  .resume-page[data-font="tahoma"]      { font-family: Tahoma, 'Segoe UI', Arial, sans-serif; }
+  .resume-page[data-font="times"]       { font-family: 'Times New Roman', Times, serif; }
+  .resume-page[data-font="garamond"]    { font-family: Garamond, 'Times New Roman', serif; }
+  .resume-page[data-font="palatino"]    { font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', serif; }
+  .resume-page[data-font="trebuchet"]   { font-family: 'Trebuchet MS', 'Segoe UI', sans-serif; }
+  .resume-page[data-font="consolas"]    { font-family: Consolas, 'Courier New', monospace; }
+  .resume-page[data-font="bookantiqua"] { font-family: 'Book Antiqua', Palatino, 'Century Schoolbook', serif; }
+  .resume-page[data-font="candara"]     { font-family: Candara, 'Segoe UI', Tahoma, Arial, sans-serif; }
+  .resume-page[data-font="lucida"]      { font-family: 'Lucida Sans', 'Lucida Grande', 'Segoe UI', sans-serif; }
+
+  /* ── Themes (CSS variables) ── */
+  .resume-page {
+    --primary: #0f6ea8;
+    --heading: #0f6ea8;
+    --accent: #3b82f6;
+    --sidebar-bg: #0d1f33;
+    --sidebar-fg: #d7e2ec;
+    --sidebar-muted: #82a0b8;
+    --sidebar-heading: #ffffff;
+    --tint: #eaf2f8;
+    --main-bg: #ffffff;
+    --main-fg: #1f2a36;
+    --muted: #5b6b7a;
+    --rule: rgba(130,160,184,.5);
+    --rule-main: rgba(31,42,54,.18);
+    --tag-bg: rgba(255,255,255,.13);
+  }
+  .resume-page[data-theme="ocean"]    { --primary:#0f6ea8; --heading:#0f6ea8; --sidebar-bg:#0d1f33; --accent:#38bdf8; --tint:#e8f2fa; }
+  .resume-page[data-theme="slate"]    { --primary:#334155; --heading:#334155; --sidebar-bg:#232c38; --accent:#94a3b8; --tint:#eef1f5; }
+  .resume-page[data-theme="forest"]   { --primary:#0f766e; --heading:#0f766e; --sidebar-bg:#0c2b24; --accent:#34d399; --tint:#e7f3ef; }
+  .resume-page[data-theme="wine"]     { --primary:#9f1239; --heading:#9f1239; --sidebar-bg:#321321; --accent:#fb7185; --tint:#f9edf1; }
+  .resume-page[data-theme="navy"]     { --primary:#1e40af; --heading:#1e40af; --sidebar-bg:#111d40; --accent:#818cf8; --tint:#eaeefb; }
+  .resume-page[data-theme="indigo"]   { --primary:#4338ca; --heading:#4338ca; --sidebar-bg:#1e1b4b; --accent:#818cf8; --tint:#eef2ff; }
+  .resume-page[data-theme="rose"]     { --primary:#be123c; --heading:#be123c; --sidebar-bg:#3f1020; --accent:#fb7185; --tint:#fff1f2; }
+  .resume-page[data-theme="amber"]    { --primary:#d97706; --heading:#d97706; --sidebar-bg:#3a2407; --accent:#fbbf24; --tint:#fffbeb; }
+  .resume-page[data-theme="teal"]     { --primary:#0d9488; --heading:#0d9488; --sidebar-bg:#042f2c; --accent:#2dd4bf; --tint:#f0fdfa; }
+  .resume-page[data-theme="emerald"]  { --primary:#059669; --heading:#059669; --sidebar-bg:#022c22; --accent:#34d399; --tint:#ecfdf5; }
+  .resume-page[data-theme="charcoal"] { --primary:#1f2937; --heading:#1f2937; --sidebar-bg:#111827; --accent:#9ca3af; --tint:#f3f4f6; }
+  .resume-page[data-theme="crimson"]  { --primary:#b91c1c; --heading:#b91c1c; --sidebar-bg:#3f0d0d; --accent:#f87171; --tint:#fef2f2; }
+  .resume-page[data-theme="sky"]      { --primary:#0284c7; --heading:#0284c7; --sidebar-bg:#082f49; --accent:#38bdf8; --tint:#f0f9ff; }
+  .resume-page[data-theme="purple"]   { --primary:#7e22ce; --heading:#7e22ce; --sidebar-bg:#2e1065; --accent:#c084fc; --tint:#faf5ff; }
+
+  /* ── Layout templates ── */
+  /* Classic (default): solid sidebar */
+  .resume-page[data-template="classic"] .sidebar { background: var(--sidebar-bg); color: var(--sidebar-fg); }
+  .resume-page[data-template="classic"] .page-header { border-bottom: 2pt solid var(--primary); }
+
+  /* Minimal: light tinted sidebar with accent border */
+  .resume-page[data-template="minimal"] .sidebar {
+    background: var(--tint); color: var(--main-fg);
+    border-right: 1pt solid var(--rule);
+  }
+  .resume-page[data-template="minimal"] .page-header { border-bottom: 1pt solid var(--rule-main); }
+  .resume-page[data-template="minimal"] .side-sec h2 { color: var(--heading); border-bottom-color: var(--rule-main); }
+  .resume-page[data-template="minimal"] .skill-label { color: var(--muted); }
+  .resume-page[data-template="minimal"] .tag-list li { background: #ffffff; border: .5pt solid var(--rule-main); color: var(--main-fg); }
+  .resume-page[data-template="minimal"] .sidebar a { color: var(--heading); }
+
+  /* Modern: colored header band + solid sidebar */
+  .resume-page[data-template="modern"] .page-header { background: var(--sidebar-bg); color: #fff; border-bottom: 2pt solid var(--accent); }
+  .resume-page[data-template="modern"] .page-header .name { color: #fff; }
+  .resume-page[data-template="modern"] .page-header .headline { color: var(--accent); }
+  .resume-page[data-template="modern"] .sidebar { background: var(--sidebar-bg); color: var(--sidebar-fg); }
+
+  /* ── Header ── */
+  .page-header { padding: 7mm 9mm 4.2mm; }
+  .name { font-size: 16pt; font-weight: 800; letter-spacing: 2pt; text-transform: uppercase; color: var(--main-fg); }
+  .headline { font-size: 9pt; color: var(--heading); font-weight: 600; margin-top: .8mm; letter-spacing: .3pt; }
+
+  /* ── Two columns ── */
+  .columns { flex: 1; display: grid; grid-template-columns: 33% 1fr; min-height: 0; }
+
+  /* ═══════════════════ SIDEBAR ═══════════════════ */
+  .sidebar { padding: 5mm 4.2mm 6mm 5mm; font-size: 8.2pt; line-height: 1.35; }
+  .side-sec { margin-bottom: 4mm; }
+  .side-sec:last-child { margin-bottom: 0; }
+  .side-sec h2 {
+    font-size: 8.2pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700;
+    color: var(--sidebar-heading); border-bottom: 1pt solid var(--rule);
+    padding-bottom: 1.1mm; margin-bottom: 2mm;
+  }
+  .contact-block > div { margin-bottom: .9mm; word-break: break-word; }
+
+  .skill-group { margin-bottom: 2.3mm; }
+  .skill-label {
+    display: block; font-size: 7.3pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4pt; color: var(--sidebar-muted); margin-bottom: .9mm;
+  }
+
+  ul.tag-list, ul.plain-list { list-style: none; margin: 0; padding: 0; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 1.2mm; }
+  .tag-list li {
+    background: var(--tag-bg); padding: .5mm 1.7mm; border-radius: 2pt;
+    font-size: 7.6pt; line-height: 1.5;
+  }
+  .plain-list li { margin-bottom: 1mm; line-height: 1.35; }
+
+  .cert-item .cert-name { font-weight: 700; }
+  .cert-item .cert-date { font-size: 7.6pt; color: var(--sidebar-muted); margin-top: .3mm; }
+  .edu-item .edu-name { font-weight: 700; }
+  .edu-item .edu-school { margin-top: .2mm; }
+  .edu-item .edu-date { font-size: 7.6pt; color: var(--sidebar-muted); margin-top: .2mm; }
+
+  .sidebar b { font-weight: 700; }
+  .sidebar a { color: var(--accent); text-decoration: none; }
+  .main a { color: var(--accent); text-decoration: none; }
+
+  .resume-page[data-template="minimal"] .cert-item .cert-date,
+  .resume-page[data-template="minimal"] .edu-item .edu-date { color: var(--muted); }
+
+  /* ═══════════════════ MAIN COLUMN ═══════════════════ */
+  .main { padding: 5mm 6.5mm 6mm 5.5mm; background: var(--main-bg); color: var(--main-fg); }
+  .main-sec { margin-bottom: 4.2mm; }
+  .main-sec:last-child { margin-bottom: 0; }
+  .main h2 {
+    font-size: 9pt; text-transform: uppercase; letter-spacing: 1.2pt; font-weight: 700;
+    color: var(--heading); border-bottom: 1.2pt solid var(--rule-main);
+    padding-bottom: 1mm; margin-bottom: 2.4mm;
+  }
+  .summary p { font-size: 8.8pt; line-height: 1.42; margin-bottom: 1.8mm; }
+  .summary p:last-child { margin-bottom: 0; }
+
+  .job { margin-bottom: 3.2mm; page-break-inside: avoid; }
+  .job:last-child { margin-bottom: 0; }
+  .job-head { margin-bottom: 2mm; }
+  .job-role { font-weight: 700; font-size: 9.2pt; }
+  .job-sub { font-size: 8pt; color: #8a9aa8; margin-top: .3mm; }
+  .job-company { font-weight: 600; }
+  .job-dates { font-weight: 600; }
+  ul.bullets { margin: 0; padding-left: 4mm; }
+  ul.bullets li { font-size: 8.6pt; line-height: 1.38; margin-bottom: .7mm; }
+
+  /* ═══════════════════ EDIT MODE ═══════════════════ */
+  .editable { outline: none; border-radius: 2px; transition: background .1s; }
+  body.edit-mode .editable:hover {
+    background: #eff6ff; outline: 1px dashed #60a5fa; outline-offset: 1px; cursor: text;
+  }
+  body.edit-mode .sidebar .editable:hover {
+    background: rgba(255,255,255,.08); outline-color: rgba(255,255,255,.55);
+  }
+  body.edit-mode .resume-page[data-template="minimal"] .sidebar .editable:hover {
+    background: #eff6ff; outline-color: #60a5fa;
+  }
+
+  .job-controls { display: none; gap: 4px; margin-top: 1.4mm; }
+  body.edit-mode .job-controls { display: flex; }
+
+  .mini-btn {
+    font-size: 7.5pt; padding: 1px 8px; border-radius: 3px;
+    border: 1px solid #94a3b8; background: #f1f5f9; color: #334155; cursor: pointer;
+  }
+  .mini-btn:hover { background: #e2e8f0; }
+  .mini-btn.danger:hover { background: #fee2e2; border-color: #f87171; color: #b91c1c; }
+
+  .mini-add {
+    display: none; font-size: 7.5pt; padding: 1px 9px; margin-top: 1.2mm;
+    border: 1px dashed #94a3b8; background: transparent; color: #64748b;
+    border-radius: 3px; cursor: pointer;
+  }
+  body.edit-mode .mini-add { display: inline-block; }
+  body.edit-mode .mini-add:hover { background: #e2e8f0; color: #1e293b; }
+  .sidebar .mini-add { color: var(--sidebar-muted); border-color: var(--sidebar-muted); }
+  body.edit-mode .sidebar .mini-add:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+  /* ══════════════════ ITEM & SECTION REMOVE BUTTONS (EDIT MODE) ══════════════════ */
+  .side-sec { position: relative; }
+  .li-remove {
+    display: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 10px;
+    line-height: 1;
+    padding: 0 2px;
+    margin-left: 3px;
+    color: inherit;
+    opacity: .55;
+    vertical-align: middle;
+    border-radius: 3px;
+  }
+  .li-remove:hover { opacity: 1; }
+  body.edit-mode .li-remove { display: inline-block; }
+  body.edit-mode .tag-list .li-remove { color: #94a3b8; }
+  body.edit-mode .tag-list .li-remove:hover { color: #fff; background: #ef4444; }
+  body.edit-mode .bullets .li-remove:hover { color: #dc2626; background: #fee2e2; }
+  body.edit-mode .plain-list .li-remove:hover { color: #dc2626; background: #fee2e2; }
+
+  .sec-remove {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 5;
+    border: 1px solid #94a3b8;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 10px;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  body.edit-mode .sec-remove { display: inline-block; }
+  .sec-remove:hover { background: #fee2e2; border-color: #f87171; color: #b91c1c; }
+  body.edit-mode .sidebar .sec-remove { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.35); color: #e2e8f0; }
+  body.edit-mode .sidebar .sec-remove:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+  /* ═══════════════════ PRINT / PDF ═══════════════════ */
+  @media print {
+    body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+    .toolbar, .toast, .mini-add, .job-controls, .li-remove, .sec-remove { display: none !important; }
+    .page-wrapper { padding: 0 !important; margin: 0 !important; }
+    .resume-page {
+      width: 210mm !important;
+      height: 297mm !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      overflow: hidden !important;
+    }
+    body.edit-mode .resume-page { overflow: hidden !important; }
+    .editable:hover { background: transparent !important; outline: none !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    @page { size: A4 portrait; margin: 0; }
+  }
+
+  @media (max-width: 860px) {
+    .page-wrapper { padding: 12px 0 24px; }
+  }
+</style>
+</head>
+<body class="">
+
+<!-- ═══════════════════ TOOLBAR ═══════════════════ -->
+<div class="toolbar no-print">
+  <div class="tb-row tb-top">
+    <div class="tb-left">
+      <a href="index.html" class="tb-title">📄 Resume Builder</a>
+      <span id="statusTag" class="status-tag">Read-Only</span>
+    </div>
+    <div class="gauge" title="Content height vs one A4 page. Keep ≤ 100% to fit on a single page.">
+      <span class="gauge-label">Page fit</span>
+      <div class="gauge-track"><div id="gaugeFill" class="gauge-fill" style="width: 0%;"></div></div>
+      <span id="gaugeLabel" class="gauge-num">0%</span>
+    </div>
+  </div>
+
+  <div class="tb-row">
+    <button id="editBtn" class="btn btn-primary" onclick="toggleEdit()">✏️ Edit</button>
+    <button class="btn btn-outline" onclick="addExperience()" title="Insert a new experience (role) block">+ Add Experience</button>
+    <button class="btn btn-outline" onclick="insertLink()" title="Select text in edit mode, then click to add a hyperlink">🔗 Link</button>
+    <select id="themeSel" class="ctl" onchange="setTheme(this.value)" title="Color theme">
+      <option value="ocean">🌊 Ocean</option>
+      <option value="slate">🪨 Slate</option>
+      <option value="forest">🌲 Forest</option>
+      <option value="wine">🍷 Wine</option>
+      <option value="navy">🌃 Navy</option>
+      <option value="indigo">🔮 Indigo</option>
+      <option value="rose">🌹 Rose</option>
+      <option value="amber">🌅 Amber</option>
+      <option value="teal">🦚 Teal</option>
+      <option value="emerald">💚 Emerald</option>
+      <option value="charcoal">🖤 Charcoal</option>
+      <option value="crimson">🔴 Crimson</option>
+      <option value="sky">☁️ Sky</option>
+      <option value="purple">🟣 Purple</option>
+    </select>
+    <select id="fontSel" class="ctl" onchange="setFont(this.value)" title="Font family">
+      <option value="system">System UI</option>
+      <option value="georgia">Georgia</option>
+      <option value="helv">Helvetica</option>
+      <option value="calibri">Calibri</option>
+      <option value="arial">Arial</option>
+      <option value="verdana">Verdana</option>
+      <option value="tahoma">Tahoma</option>
+      <option value="times">Times New Roman</option>
+      <option value="garamond">Garamond</option>
+      <option value="palatino">Palatino</option>
+      <option value="trebuchet">Trebuchet MS</option>
+      <option value="consolas">Consolas</option>
+      <option value="bookantiqua">Book Antiqua</option>
+      <option value="candara">Candara</option>
+      <option value="lucida">Lucida Sans</option>
+    </select>
+    <select id="tplSel" class="ctl" onchange="setTemplate(this.value)" title="Layout template">
+      <option value="classic">Classic</option>
+      <option value="minimal">Minimal</option>
+      <option value="modern">Modern</option>
+    </select>
+    <button class="btn btn-outline" onclick="resetAll()" title="Clear saved draft, theme, font &amp; template">↺ Reset</button>
+    <button id="undoResetBtn" class="btn btn-warning" onclick="undoReset()" style="display: none;" title="Restore the draft from before the last reset">↩️ Undo Reset</button>
+    <button class="btn btn-primary" onclick="saveHtmlFile()">💾 Save HTML</button>
+    <button class="btn btn-warning" onclick="exportPdf()" title="Print dialog → target 'Save as PDF'. Enable 'Background graphics' and set margins to 'None' for perfect output.">🖨️ Export PDF</button>
+  </div>
+
+  <div class="tb-hint">
+    Tip: click <b>✏️ Edit</b> to modify any text · use <b>+ add</b> under lists to grow them ·
+    <b>+ Add Experience</b> to insert a new role (move ↑/↓, delete ✕) · select text then <b>🔗 Link</b> to add a hyperlink ·
+    keep <b>Page fit ≤ 100%</b> before exporting.
+  </div>
+</div>
+
+<div id="toast" class="toast">View mode on.</div>
+
+<!-- ═══════════════════ RESUME PAGE ═══════════════════ -->
+<div class="page-wrapper">
+  <div id="resumePage" class="resume-page" data-theme="ocean" data-font="helv" data-template="classic" spellcheck="false">
+
+    <!-- ── Header ── -->
+    <header class="page-header">
+      <div class="name editable">YOUR NAME</div>
+      <div class="headline editable">Your Job Title | Specialty A · Specialty B · Specialty C</div>
+    </header>
+
+    <!-- ── Two columns ── -->
+    <div class="columns">
+
+      <!-- ══ LEFT SIDEBAR ══ -->
+      <aside class="sidebar">
+
+        <section class="side-sec">
+          <h2 class="editable">Contact</h2>
+          <div class="contact-block">
+            <div class="editable">you@email.com</div>
+            <div class="editable">+1 234 567 8900</div>
+            <div class="editable">City, Country</div>
+            <div class="editable"><a href="https://linkedin.com/in/yourname" target="_blank" rel="noopener">linkedin.com/in/yourname</a></div>
+          </div>
+        </section>
+
+        <section class="side-sec">
+          <h2 class="editable">Education</h2>
+          <div class="edu-item">
+            <div class="editable edu-name">B.Sc. in Your Field</div>
+            <div class="editable edu-school">University Name</div>
+            <div class="editable edu-date">2016 – 2020</div>
+          </div>
+        </section>
+
+        <section class="side-sec">
+          <h2 class="editable">Certifications</h2>
+          <div class="cert-item">
+            <div class="editable cert-name">Certification Name</div>
+            <div class="editable cert-date">Obtained 2024</div>
+          </div>
+        </section>
+
+        <section class="side-sec">
+          <h2 class="editable">Skills</h2>
+
+          <div class="skill-group">
+            <span class="skill-label editable">Core Skills</span>
+            <ul class="tag-list" data-addable="" id="skill-core">
+              <li class="editable">Skill One</li>
+              <li class="editable">Skill Two</li>
+              <li class="editable">Skill Three</li>
+              <li class="editable">Skill Four</li>
+            </ul>
+          </div>
+
+          <div class="skill-group">
+            <span class="skill-label editable">Tools &amp; Tech</span>
+            <ul class="tag-list" data-addable="" id="skill-tools">
+              <li class="editable">Tool One</li>
+              <li class="editable">Tool Two</li>
+              <li class="editable">Tool Three</li>
+            </ul>
+          </div>
+
+          <div class="skill-group">
+            <span class="skill-label editable">Soft Skills</span>
+            <ul class="tag-list" data-addable="" id="skill-soft">
+              <li class="editable">Leadership</li>
+              <li class="editable">Communication</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="side-sec">
+          <h2 class="editable">Languages</h2>
+          <ul class="plain-list" data-addable="" id="lang-list">
+            <li class="editable">English — Fluent</li>
+          </ul>
+        </section>
+
+      </aside>
+
+      <!-- ══ RIGHT MAIN ══ -->
+      <main class="main">
+
+        <section class="main-sec">
+          <h2 class="editable">Professional Summary</h2>
+          <div class="summary">
+            <p class="editable">A concise 2–3 sentence summary highlighting your years of experience, core expertise, and the value you bring. Focus on strengths most relevant to the role you're targeting, and quantify impact where possible.</p>
+          </div>
+        </section>
+
+        <section class="main-sec">
+          <h2 class="editable">Key Achievements</h2>
+          <ul class="bullets">
+            <li class="editable"><b>Achievement Title:</b> Describe a measurable result — use numbers (%, $, time saved) whenever possible.</li>
+            <li class="editable"><b>Achievement Title:</b> Describe another highlight relevant to the role you're applying for.</li>
+          </ul>
+        </section>
+
+        <section class="main-sec">
+          <h2 class="editable">Professional Experience</h2>
+          <div id="experienceList">
+
+            <div class="job">
+              <div class="job-head">
+                <div class="editable job-role">Job Title</div>
+                <div class="job-sub">
+                  <span class="editable job-company">Company Name</span>
+                  <span class="job-sep"> · </span>
+                  <span class="editable job-dates">Month Year – Present</span>
+                </div>
+              </div>
+              <ul class="bullets">
+                <li class="editable"><b>Responsibility / Result:</b> Describe what you did and the outcome, using action verbs and metrics.</li>
+                <li class="editable"><b>Responsibility / Result:</b> Another bullet describing scope, tools used, and impact.</li>
+                <li class="editable"><b>Responsibility / Result:</b> A third bullet — aim for 3–5 per role.</li>
+              </ul>
+              <div class="job-controls">
+                <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+              </div>
+            </div>
+
+            <div class="job">
+              <div class="job-head">
+                <div class="editable job-role">Previous Job Title</div>
+                <div class="job-sub">
+                  <span class="editable job-company">Previous Company</span>
+                  <span class="job-sep"> · </span>
+                  <span class="editable job-dates">Month Year – Month Year</span>
+                </div>
+              </div>
+              <ul class="bullets">
+                <li class="editable"><b>Responsibility / Result:</b> Describe what you did and the outcome, using action verbs and metrics.</li>
+                <li class="editable"><b>Responsibility / Result:</b> Another bullet describing scope, tools used, and impact.</li>
+              </ul>
+              <div class="job-controls">
+                <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ══════════════════ STATE & DOM ══════════════════ */
+  const page = document.getElementById('resumePage');
+  const editBtn = document.getElementById('editBtn');
+  const statusTag = document.getElementById('statusTag');
+  const toast = document.getElementById('toast');
+  const gaugeFill = document.getElementById('gaugeFill');
+  const gaugeLabel = document.getElementById('gaugeLabel');
+
+  const STORAGE_KEY = 'resume_builder_draft';
+  const PREFS_KEY   = 'resume_builder_prefs';
+  const BACKUP_KEY  = 'resume_builder_backup';
+  const BACKUP_PREFS_KEY = 'resume_builder_backup_prefs';
+
+  let isEditing = false;
+  let toastTimer = null;
+
+  /* ══════════════════ THEME / FONT LIBRARIES ══════════════════ */
+  const THEME_VARS = {
+    ocean:     { primary:'#0f6ea8', heading:'#0f6ea8', sidebarBg:'#0d1f33', accent:'#38bdf8', tint:'#e8f2fa' },
+    slate:     { primary:'#334155', heading:'#334155', sidebarBg:'#232c38', accent:'#94a3b8', tint:'#eef1f5' },
+    forest:    { primary:'#0f766e', heading:'#0f766e', sidebarBg:'#0c2b24', accent:'#34d399', tint:'#e7f3ef' },
+    wine:      { primary:'#9f1239', heading:'#9f1239', sidebarBg:'#321321', accent:'#fb7185', tint:'#f9edf1' },
+    navy:      { primary:'#1e40af', heading:'#1e40af', sidebarBg:'#111d40', accent:'#818cf8', tint:'#eaeefb' },
+    indigo:    { primary:'#4338ca', heading:'#4338ca', sidebarBg:'#1e1b4b', accent:'#818cf8', tint:'#eef2ff' },
+    rose:      { primary:'#be123c', heading:'#be123c', sidebarBg:'#3f1020', accent:'#fb7185', tint:'#fff1f2' },
+    amber:     { primary:'#d97706', heading:'#d97706', sidebarBg:'#3a2407', accent:'#fbbf24', tint:'#fffbeb' },
+    teal:      { primary:'#0d9488', heading:'#0d9488', sidebarBg:'#042f2c', accent:'#2dd4bf', tint:'#f0fdfa' },
+    emerald:   { primary:'#059669', heading:'#059669', sidebarBg:'#022c22', accent:'#34d399', tint:'#ecfdf5' },
+    charcoal:  { primary:'#1f2937', heading:'#1f2937', sidebarBg:'#111827', accent:'#9ca3af', tint:'#f3f4f6' },
+    crimson:   { primary:'#b91c1c', heading:'#b91c1c', sidebarBg:'#3f0d0d', accent:'#f87171', tint:'#fef2f2' },
+    sky:       { primary:'#0284c7', heading:'#0284c7', sidebarBg:'#082f49', accent:'#38bdf8', tint:'#f0f9ff' },
+    purple:    { primary:'#7e22ce', heading:'#7e22ce', sidebarBg:'#2e1065', accent:'#c084fc', tint:'#faf5ff' }
+  };
+
+  const FONT_STACKS = {
+    system:      "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
+    georgia:     "Georgia, 'Times New Roman', serif",
+    helv:        "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    calibri:     "Calibri, 'Segoe UI', Tahoma, Arial, sans-serif",
+    arial:       "Arial, Helvetica, sans-serif",
+    verdana:     "Verdana, Geneva, sans-serif",
+    tahoma:      "Tahoma, 'Segoe UI', Arial, sans-serif",
+    times:       "'Times New Roman', Times, serif",
+    garamond:    "Garamond, 'Times New Roman', serif",
+    palatino:    "'Palatino Linotype', Palatino, 'Book Antiqua', serif",
+    trebuchet:   "'Trebuchet MS', 'Segoe UI', sans-serif",
+    consolas:    "Consolas, 'Courier New', monospace",
+    bookantiqua: "'Book Antiqua', Palatino, 'Century Schoolbook', serif",
+    candara:     "Candara, 'Segoe UI', Tahoma, Arial, sans-serif",
+    lucida:      "'Lucida Sans', 'Lucida Grande', 'Segoe UI', sans-serif"
+  };
+
+  /* Bake the chosen theme + font as inline styles so they are embedded in the
+     saved HTML file and survive any environment (no dependency on JS/localStorage). */
+  function bakeStyle() {
+    const t = THEME_VARS[page.dataset.theme] || THEME_VARS.ocean;
+    page.style.setProperty('--primary', t.primary);
+    page.style.setProperty('--heading', t.heading);
+    page.style.setProperty('--sidebar-bg', t.sidebarBg);
+    page.style.setProperty('--accent', t.accent);
+    page.style.setProperty('--tint', t.tint);
+    page.style.fontFamily = FONT_STACKS[page.dataset.font] || FONT_STACKS.system;
+  }
+
+  /* ══════════════════ UTILITIES ══════════════════ */
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3200);
+  }
+
+  function placeCaretAtEnd(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  /* ══════════════════ PAGE-FIT GAUGE ══════════════════ */
+  function updateFit() {
+    const header = page.querySelector('.page-header');
+    const side   = page.querySelector('.sidebar');
+    const main   = page.querySelector('.main');
+    const avail  = page.clientHeight - (header ? header.offsetHeight : 0);
+    const used   = Math.max(side ? side.scrollHeight : 0, main ? main.scrollHeight : 0);
+    const pct    = avail > 0 ? Math.min(999, Math.round(used / avail * 100)) : 0;
+    const over   = pct >= 100;
+
+    gaugeFill.style.width = Math.min(100, pct) + '%';
+    gaugeFill.classList.toggle('over', over);
+    gaugeLabel.textContent = (over ? '⚠ ' : '') + pct + '%';
+    gaugeLabel.classList.toggle('over', over);
+  }
+
+  /* ══════════════════ DRAFT SAVE / RESTORE ══════════════════ */
+  function stripEditorControls(el) {
+    el.querySelectorAll('.li-remove, .sec-remove, .mini-add').forEach(b => b.remove());
+    el.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
+  }
+
+  function saveDraft() {
+    try {
+      const clone = page.cloneNode(true);
+      stripEditorControls(clone);
+      localStorage.setItem(STORAGE_KEY, clone.innerHTML);
+    } catch (e) { /* storage may be unavailable */ }
+  }
+
+  function restoreDraft() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return false;
+    try { page.innerHTML = saved; return true; } catch (e) { return false; }
+  }
+
+  /* ══════════════════ EDIT MODE ══════════════════ */
+  function toggleEdit() { setEditing(!isEditing); }
+
+  function setEditing(v) {
+    isEditing = v;
+    page.querySelectorAll('.editable').forEach(el => { el.contentEditable = v ? 'true' : 'inherit'; });
+    document.body.classList.toggle('edit-mode', v);
+    page.classList.toggle('scrolling', v);
+
+    editBtn.textContent = v ? '🔒 Lock / View' : '✏️ Edit';
+    editBtn.classList.toggle('btn-primary', !v);
+    editBtn.classList.toggle('btn-success', v);
+    statusTag.textContent = v ? '✏️ Editing Active' : 'Read-Only';
+    statusTag.classList.toggle('active', v);
+
+    if (v) {
+      renderAddButtons();
+      renderItemButtons();
+      showToast('Edit mode on — click any text to modify it.');
+    } else {
+      cleanupEmptyItems();
+      page.querySelectorAll('.li-remove, .sec-remove, .mini-add').forEach(b => b.remove());
+      showToast('View mode on.');
+    }
+
+    updateFit();
+  }
+
+  function renderAddButtons() {
+    document.querySelectorAll('ul[data-addable]').forEach(ul => {
+      const next = ul.nextElementSibling;
+      if (next && next.classList && next.classList.contains('mini-add') && next.dataset.for === ul.id) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mini-add no-print';
+      btn.textContent = '+ add';
+      btn.dataset.for = ul.id;
+      btn.onclick = () => addLi(ul);
+      ul.after(btn);
+    });
+  }
+
+  /* ══════════════════ ITEM / SECTION REMOVE (EDIT MODE) ══════════════════ */
+  function isEmptyContent(el) {
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('.li-remove').forEach(b => b.remove());
+    return !clone.textContent.trim();
+  }
+
+  function appendLiRemove(li) {
+    if (li.querySelector(':scope > .li-remove')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'li-remove no-print';
+    btn.textContent = '✕';
+    btn.title = 'Remove item';
+    btn.contentEditable = 'false';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isEditing) return;
+      li.remove();
+      saveDraft();
+      updateFit();
+    });
+    li.appendChild(btn);
+  }
+
+  function secRemove(btn) {
+    const sec = btn.closest('.side-sec');
+    if (!sec) return;
+    if (!confirm('Remove this sidebar section and its content?')) return;
+    sec.remove();
+    saveDraft();
+    updateFit();
+    showToast('Sidebar section removed.');
+  }
+
+  function renderItemButtons() {
+    page.querySelectorAll('li.editable').forEach(li => appendLiRemove(li));
+    page.querySelectorAll('.side-sec').forEach(sec => {
+      if (sec.querySelector(':scope > .sec-remove')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sec-remove no-print';
+      btn.textContent = '✕';
+      btn.title = 'Remove sidebar section';
+      btn.addEventListener('click', () => secRemove(btn));
+      sec.appendChild(btn);
+    });
+  }
+
+  function cleanupEmptyItems() {
+    let changed = false;
+    page.querySelectorAll('li.editable').forEach(li => {
+      if (isEmptyContent(li)) { li.remove(); changed = true; }
+    });
+    page.querySelectorAll('.contact-block .editable').forEach(el => {
+      if (isEmptyContent(el)) { el.remove(); changed = true; }
+    });
+    if (changed) { saveDraft(); updateFit(); }
+  }
+
+  function addLi(ul) {
+    if (!isEditing) setEditing(true);
+    const li = document.createElement('li');
+    li.className = 'editable';
+    li.textContent = 'New item…';
+    li.contentEditable = 'true';
+    ul.appendChild(li);
+    appendLiRemove(li);
+    li.focus();
+    placeCaretAtEnd(li);
+    saveDraft();
+    updateFit();
+  }
+
+  /* ══════════════════ HYPERLINK INSERTION ══════════════════ */
+  function insertLink() {
+    if (!isEditing) setEditing(true);
+    const sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) {
+      showToast('Select some text first, then click 🔗 Link.');
+      return;
+    }
+    const url = prompt('Enter the URL (e.g. https://example.com):');
+    if (!url) return;
+    const range = sel.getRangeAt(0);
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    try {
+      range.surroundContents(a);
+    } catch (e) {
+      showToast('Select text within a single line/item only.');
+      return;
+    }
+    sel.removeAllRanges();
+    sel.addRange(range);
+    saveDraft();
+    updateFit();
+    showToast('Link added.');
+  }
+
+  /* ══════════════════ EXPERIENCE (JOBS) ══════════════════ */
+  function jobAddBullet(btn) {
+    const job = btn.closest('.job');
+    const ul  = job.querySelector('ul.bullets');
+    addLi(ul);
+  }
+
+  function jobMove(btn, dir) {
+    const job  = btn.closest('.job');
+    const list = job.parentElement;
+    const jobs = Array.from(list.querySelectorAll(':scope > .job'));
+    const i = jobs.indexOf(job);
+    const j = i + dir;
+    if (j < 0 || j >= jobs.length) { showToast(j < 0 ? 'Already at top' : 'Already at bottom'); return; }
+    if (dir < 0) list.insertBefore(job, jobs[j]);
+    else list.insertBefore(jobs[j], job);
+    saveDraft();
+    updateFit();
+  }
+
+  function jobDelete(btn) {
+    const job = btn.closest('.job');
+    if (confirm('Remove this experience block?')) {
+      job.remove();
+      saveDraft();
+      updateFit();
+      showToast('Experience block removed.');
+    }
+  }
+
+  function addExperience() {
+    if (!isEditing) setEditing(true);
+    const list = document.getElementById('experienceList');
+    const div  = document.createElement('div');
+    div.className = 'job';
+    div.innerHTML =
+      '<div class="job-head">' +
+        '<div class="editable job-role">Job Title</div>' +
+        '<div class="job-sub">' +
+          '<span class="editable job-company">Company</span>' +
+          '<span class="job-sep"> · </span>' +
+          '<span class="editable job-dates">Year – Year</span>' +
+        '</div>' +
+      '</div>' +
+      '<ul class="bullets">' +
+        '<li class="editable">Key achievement or responsibility…</li>' +
+      '</ul>' +
+      '<div class="job-controls">' +
+        '<button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>' +
+        '<button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>' +
+        '<button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>' +
+        '<button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>' +
+      '</div>';
+    list.appendChild(div);
+    div.querySelectorAll('.editable').forEach(el => { el.contentEditable = 'true'; });
+    const first = div.querySelector('.job-role');
+    first.focus();
+    placeCaretAtEnd(first);
+    saveDraft();
+    updateFit();
+    renderItemButtons();
+    showToast('New experience added — edit the text. Watch the Page fit gauge!');
+    div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ══════════════════ THEME / FONT / TEMPLATE ══════════════════ */
+  function setTheme(v) {
+    page.dataset.theme = v;
+    bakeStyle();
+    document.getElementById('themeSel').value = v;
+    savePrefs();
+    updateFit();
+  }
+
+  function setFont(v) {
+    page.dataset.font = v;
+    bakeStyle();
+    document.getElementById('fontSel').value = v;
+    savePrefs();
+    updateFit();
+  }
+
+  function setTemplate(v) {
+    page.dataset.template = v;
+    document.getElementById('tplSel').value = v;
+    savePrefs();
+    updateFit();
+  }
+
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({
+        theme: page.dataset.theme || 'ocean',
+        font: page.dataset.font || 'system',
+        template: page.dataset.template || 'classic'
+      }));
+    } catch (e) {}
+  }
+
+  function restorePrefs() {
+    try {
+      const p = JSON.parse(localStorage.getItem(PREFS_KEY));
+      if (!p) return;
+      if (p.theme)    setTheme(p.theme);
+      if (p.font)     setFont(p.font);
+      if (p.template) setTemplate(p.template);
+    } catch (e) {}
+  }
+
+  /* Apply template/theme/font passed via URL query string (?theme=navy&font=helv&template=modern)
+     so the landing-page gallery can deep-link into a pre-styled editor. */
+  function applyQueryParams() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const theme = params.get('theme');
+      const font = params.get('font');
+      const template = params.get('template');
+      if (theme && THEME_VARS[theme]) setTheme(theme);
+      if (font && FONT_STACKS[font]) setFont(font);
+      if (template) setTemplate(template);
+      return !!(theme || font || template);
+    } catch (e) { return false; }
+  }
+
+  /* ══════════════════ RESET (SAFE) ══════════════════ */
+  function backupCurrentState() {
+    try {
+      const clone = page.cloneNode(true);
+      stripEditorControls(clone);
+      localStorage.setItem(BACKUP_KEY, clone.innerHTML);
+      localStorage.setItem(BACKUP_PREFS_KEY, JSON.stringify({
+        theme: page.dataset.theme || 'ocean',
+        font: page.dataset.font || 'system',
+        template: page.dataset.template || 'classic'
+      }));
+    } catch (e) {}
+  }
+
+  function resetAll() {
+    const msg = 'Reset the editor?\n\n' +
+      'This will DISCARD your current unsaved draft and restore the original placeholder content.\n' +
+      'Your saved HTML files on disk are NOT affected.\n\n' +
+      'A backup of your current draft will be kept so you can undo this reset.';
+    if (!confirm(msg)) return;
+    backupCurrentState();
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PREFS_KEY);
+    location.reload();
+  }
+
+  function showUndoResetIfBackup() {
+    const btn = document.getElementById('undoResetBtn');
+    if (btn && localStorage.getItem(BACKUP_KEY)) btn.style.display = 'inline-flex';
+  }
+
+  function hideUndoReset() {
+    const btn = document.getElementById('undoResetBtn');
+    if (btn) btn.style.display = 'none';
+  }
+
+  function undoReset() {
+    const draft = localStorage.getItem(BACKUP_KEY);
+    if (!draft) { showToast('No backup found to restore.'); return; }
+    if (!confirm('Restore the draft from before the reset? This will replace the current content.')) return;
+    try {
+      page.innerHTML = draft;
+      const p = JSON.parse(localStorage.getItem(BACKUP_PREFS_KEY));
+      if (p) {
+        if (p.theme)    setTheme(p.theme);
+        if (p.font)     setFont(p.font);
+        if (p.template) setTemplate(p.template);
+      }
+      localStorage.removeItem(BACKUP_KEY);
+      localStorage.removeItem(BACKUP_PREFS_KEY);
+      hideUndoReset();
+      setEditing(false);
+      saveDraft();
+      showToast('Draft restored from before the reset.');
+    } catch (e) {
+      showToast('Could not restore backup.');
+    }
+  }
+
+  /* ══════════════════ SAVE HTML / EXPORT PDF ══════════════════ */
+  async function saveHtmlFile() {
+    if (isEditing) setEditing(false);
+    bakeStyle();
+    savePrefs();
+    const docCopy = document.cloneNode(true);
+    const copy    = docCopy.getElementById('resumePage');
+    stripEditorControls(copy);
+    docCopy.body.classList.remove('edit-mode');
+
+    // Sync the saved dropdowns so they reflect the chosen theme / font / template
+    const syncIds = { themeSel: 'theme', fontSel: 'font', tplSel: 'template' };
+    Object.entries(syncIds).forEach(([id, prop]) => {
+      const sel = docCopy.getElementById(id);
+      const val = page.dataset[prop];
+      if (!sel) return;
+      Array.from(sel.options).forEach(o => {
+        const on = o.value === val;
+        o.selected = on;
+        if (on) o.setAttribute('selected', 'selected');
+        else o.removeAttribute('selected');
+      });
+    });
+
+    const html = '<!DOCTYPE html>\n' + docCopy.documentElement.outerHTML;
+    const name = 'My-Resume.html';
+
+    try {
+      if ('showSaveFilePicker' in window) {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: name,
+          types: [{ description: 'HTML File', accept: { 'text/html': ['.html'] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(html);
+        await writable.close();
+        showToast('HTML file saved successfully.');
+        return;
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('HTML file downloaded.');
+  }
+
+  function exportPdf() {
+    if (isEditing) setEditing(false);
+    setTimeout(() => window.print(), 80);
+  }
+
+  /* ══════════════════ INIT ══════════════════ */
+  window.addEventListener('DOMContentLoaded', () => {
+    const hasQueryStyle = applyQueryParams();
+    if (!hasQueryStyle) restorePrefs();
+    savePrefs();
+    bakeStyle();
+    if (restoreDraft()) showToast('Restored saved draft from this browser.');
+    showUndoResetIfBackup();
+    setEditing(false);
+
+    // Sync dropdowns to current state on load
+    document.getElementById('themeSel').value = page.dataset.theme || 'ocean';
+    document.getElementById('fontSel').value = page.dataset.font || 'system';
+    document.getElementById('tplSel').value = page.dataset.template || 'classic';
+
+    page.addEventListener('input', () => { saveDraft(); updateFit(); });
+    window.addEventListener('resize', updateFit);
+    updateFit();
+
+    // Keep text selection when clicking toolbar / quick-action buttons
+    document.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.mini-btn, .mini-add, button')) e.preventDefault();
+    });
+
+    // Auto-remove empty items / contact lines in edit mode when focus leaves them
+    document.addEventListener('focusout', (e) => {
+      if (!isEditing) return;
+      const target = e.target;
+      if (!target.classList || !target.classList.contains('editable')) return;
+      setTimeout(() => {
+        if (!isEditing) return;
+        if (isEmptyContent(target) && (target.closest('li') || target.closest('.contact-block'))) {
+          target.remove();
+          saveDraft();
+          updateFit();
+        }
+      }, 0);
+    });
+  });
+</script>
+
+</body></html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Writing Guide — Resume Builder</title>
+<meta name="description" content="A practical guide to writing a strong, ATS-friendly resume: structure, quantifying impact, tailoring, and common mistakes to avoid.">
+<link rel="icon" href="data:,">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1f2a36;
+    line-height: 1.6;
+  }
+  a { color: #0284c7; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #0f172a; color: #e2e8f0;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  }
+  .nav-brand { font-weight: 800; font-size: 1.05em; letter-spacing: .3px; text-decoration: none; color: #38bdf8; }
+  .nav-links { display: flex; gap: 20px; align-items: center; }
+  .nav-links a { text-decoration: none; color: #cbd5e1; font-size: .88em; font-weight: 600; }
+  .nav-links a:hover { color: #fff; text-decoration: none; }
+  .nav-links .btn-nav { background: #0284c7; color: #fff; padding: 7px 14px; border-radius: 6px; }
+  .nav-links .btn-nav:hover { background: #0369a1; color: #fff; }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  .page-head { text-align: center; margin-bottom: 44px; }
+  .page-head h1 { font-size: 2em; font-weight: 800; margin-bottom: 10px; }
+  .page-head p { color: #5b6b7a; max-width: 600px; margin: 0 auto; }
+
+  .toc {
+    background: #fff; border: 1px solid #e6eaf0; border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 40px;
+  }
+  .toc h2 { font-size: .95em; text-transform: uppercase; letter-spacing: .5px; color: #5b6b7a; margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; font-size: .92em; }
+
+  article section { margin-bottom: 38px; }
+  article h2 {
+    font-size: 1.35em; font-weight: 800; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 2px solid #0284c7; color: #0f172a;
+  }
+  article h3 { font-size: 1.05em; font-weight: 700; margin: 18px 0 8px; }
+  article p { margin-bottom: 12px; color: #334155; }
+  article ul, article ol { margin: 0 0 12px 22px; color: #334155; }
+  article li { margin-bottom: 6px; }
+
+  .callout {
+    background: #eef7fd; border-left: 4px solid #0284c7; border-radius: 6px;
+    padding: 14px 18px; margin: 14px 0; font-size: .93em;
+  }
+  .callout.warn { background: #fff7ed; border-left-color: #d97706; }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .example {
+    background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 14px 18px;
+    font-size: .9em; margin: 10px 0; font-family: 'Courier New', monospace;
+  }
+  .example .bad { color: #f87171; }
+  .example .good { color: #6ee7b7; }
+
+  .cta-block {
+    text-align: center; background: #0f172a; color: #fff; border-radius: 16px;
+    padding: 40px 30px; margin-top: 50px;
+  }
+  .cta-block h2 { border: none; color: #fff; }
+  .cta-block p { color: #cbd5e1; }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
+    background: #0284c7; color: #fff; padding: 13px 26px; border-radius: 8px;
+    font-weight: 700; text-decoration: none;
+  }
+  .cta-btn:hover { background: #0369a1; text-decoration: none; }
+
+  footer { text-align: center; padding: 30px 20px 40px; color: #8a96a3; font-size: .82em; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">📄 Resume Builder</a>
+  <div class="nav-links">
+    <a href="index.html#templates">Templates</a>
+    <a href="guide.html">Guide</a>
+    <a href="editor.html" class="btn-nav">Open Editor</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="page-head">
+    <h1>📘 Resume Writing Guide</h1>
+    <p>A short, practical guide to structuring your resume, quantifying your impact, and staying ATS-friendly — before you jump into the editor.</p>
+  </div>
+
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#structure">Resume structure that works</a></li>
+      <li><a href="#summary">Writing a strong professional summary</a></li>
+      <li><a href="#bullets">Turning duties into achievements</a></li>
+      <li><a href="#quantify">Quantifying your impact</a></li>
+      <li><a href="#ats">Staying ATS-friendly</a></li>
+      <li><a href="#tailor">Tailoring for each application</a></li>
+      <li><a href="#mistakes">Common mistakes to avoid</a></li>
+      <li><a href="#checklist">Final checklist</a></li>
+    </ol>
+  </div>
+
+  <article>
+    <section id="structure">
+      <h2>1. Resume structure that works</h2>
+      <p>Most hiring managers skim a resume in 6–10 seconds before deciding whether to read further. A clear, predictable structure helps them find what they need fast:</p>
+      <ul>
+        <li><strong>Header</strong> — Name, target title/headline, and contact info (email, phone, location, LinkedIn).</li>
+        <li><strong>Professional Summary</strong> — 2–3 sentences that frame who you are and what you bring.</li>
+        <li><strong>Key Achievements</strong> (optional but powerful) — 2–4 standout, quantified wins pulled to the top.</li>
+        <li><strong>Professional Experience</strong> — Reverse-chronological, with 3–5 bullets per role.</li>
+        <li><strong>Skills</strong> — Grouped by category (e.g. Languages, Tools, Cloud, Soft Skills) rather than one long list.</li>
+        <li><strong>Education &amp; Certifications</strong> — Degree, institution, dates; certs with the year obtained.</li>
+      </ul>
+      <div class="callout">
+        <strong>Length rule of thumb</strong>
+        Aim for <strong>one page</strong> if you have under ~10 years of experience, and no more than <strong>two pages</strong> otherwise. Use the editor's <strong>Page fit gauge</strong> to check as you write.
+      </div>
+    </section>
+
+    <section id="summary">
+      <h2>2. Writing a strong professional summary</h2>
+      <p>Your summary is the first thing recruiters read — make it specific, not generic. A good formula:</p>
+      <p><strong>[Role/title] with [X years] of experience in [domain/specialty]. Known for [core strength or achievement]. Looking to bring [specific skills] to [type of role/company].</strong></p>
+      <div class="example">
+        <span class="bad">✗ "Hardworking professional looking for new opportunities."</span><br><br>
+        <span class="good">✓ "Backend engineer with 6+ years building scalable APIs and event-driven systems. Led a migration that cut infrastructure costs by 30%. Seeking a senior role focused on distributed systems."</span>
+      </div>
+    </section>
+
+    <section id="bullets">
+      <h2>3. Turning duties into achievements</h2>
+      <p>Avoid simply describing what your job was — describe what you <em>did</em> and the <em>result</em>. A useful structure is:</p>
+      <p><strong>Action verb + what you did + how / with what + measurable result.</strong></p>
+      <div class="example">
+        <span class="bad">✗ "Responsible for managing the sales team."</span><br><br>
+        <span class="good">✓ "Led a team of 8 sales reps, restructuring territory assignments to increase quarterly revenue by 22%."</span>
+      </div>
+      <p>Start bullets with strong action verbs: <em>Led, Built, Launched, Designed, Reduced, Automated, Negotiated, Migrated, Mentored.</em> Avoid weak openers like "Responsible for" or "Helped with."</p>
+    </section>
+
+    <section id="quantify">
+      <h2>4. Quantifying your impact</h2>
+      <p>Numbers make claims concrete and credible. When possible, include:</p>
+      <ul>
+        <li><strong>Scale</strong> — team size, number of users, records processed, budget managed.</li>
+        <li><strong>Change</strong> — percentage improvement, time saved, cost reduced.</li>
+        <li><strong>Speed</strong> — how quickly something was delivered relative to a baseline or deadline.</li>
+      </ul>
+      <p>If you don't have an exact number, a reasonable estimate ("approximately," "roughly") is far better than no number at all.</p>
+    </section>
+
+    <section id="ats">
+      <h2>5. Staying ATS-friendly</h2>
+      <p>Many companies use an Applicant Tracking System (ATS) to parse resumes before a human ever sees them. To stay compatible:</p>
+      <ul>
+        <li>Use standard section headings (Experience, Education, Skills) rather than creative alternatives.</li>
+        <li>Avoid text inside images, complex tables, or multi-column text boxes that some ATS parsers can't read reliably.</li>
+        <li>Include keywords from the job description naturally in your summary, skills, and bullets.</li>
+        <li>Save/export as a well-structured PDF or HTML rather than a scanned image.</li>
+        <li>Spell out acronyms at least once (e.g. "Model Context Protocol (MCP)") so both ATS keyword matching and human readers understand.</li>
+      </ul>
+    </section>
+
+    <section id="tailor">
+      <h2>6. Tailoring for each application</h2>
+      <p>A resume tailored to the specific role consistently outperforms a generic one. Before applying:</p>
+      <ul>
+        <li>Re-read the job description and highlight 5–8 recurring keywords/skills.</li>
+        <li>Make sure your summary and top bullets reflect the most relevant of those keywords — genuinely, not by stuffing.</li>
+        <li>Reorder or trim bullets so the most relevant achievements for <em>this</em> role are near the top of each job entry.</li>
+      </ul>
+      <div class="callout">
+        <strong>Tip</strong>
+        Save a "master" version with everything, then use <strong>Save HTML</strong> in the editor to create a tailored copy per application — the exported file is self-contained and easy to keep as an archive.
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <h2>7. Common mistakes to avoid</h2>
+      <ul>
+        <li><strong>Walls of text.</strong> Long paragraphs get skipped — use bullets.</li>
+        <li><strong>Inconsistent formatting.</strong> Mixed date formats, fonts, or bullet styles look unpolished.</li>
+        <li><strong>Listing every tool you've ever touched.</strong> Group and prioritize skills relevant to the target role.</li>
+        <li><strong>No context for numbers.</strong> "Improved performance by 40%" is stronger with a baseline: "…reducing average query time from 5s to 3s (40%)."</li>
+        <li><strong>Typos and broken links.</strong> Always proofread, and test any hyperlinks (portfolio, LinkedIn, certifications) before sending.</li>
+        <li><strong>Overflowing the page.</strong> Keep an eye on the <strong>Page fit gauge</strong> in the editor — content that spills onto a second page can look unintentional if it's just a line or two.</li>
+      </ul>
+    </section>
+
+    <section id="checklist">
+      <h2>8. Final checklist</h2>
+      <ul>
+        <li>☐ Name, title, and contact info are correct and up to date</li>
+        <li>☐ Summary is specific to the role you're targeting</li>
+        <li>☐ Each bullet follows action → what → result, with numbers where possible</li>
+        <li>☐ Skills are grouped and relevant to the target role</li>
+        <li>☐ Formatting is consistent (dates, fonts, spacing)</li>
+        <li>☐ No typos — read it out loud once before exporting</li>
+        <li>☐ Fits on one page (or two, for senior/extensive experience)</li>
+        <li>☐ Exported as PDF (and/or HTML backup) with a clear file name</li>
+      </ul>
+    </section>
+  </article>
+
+  <div class="cta-block">
+    <h2>Ready to write yours?</h2>
+    <p>Pick a template and start editing — your progress saves automatically in your browser.</p>
+    <a href="index.html#templates" class="cta-btn">🎨 Browse Templates →</a>
+  </div>
+</div>
+
+<footer>
+  Free &amp; open source under the MIT License · <a href="https://github.com/estin68/resume-builder" target="_blank" rel="noopener">View on GitHub</a>
+</footer>
+
+</body>
+</html>

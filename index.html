@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Builder — Free Templates, Editor &amp; PDF Export</title>
+<meta name="description" content="A free, open-source, privacy-first resume builder. Pick a template, edit inline in your browser, and export as HTML or PDF. No sign-up, no server, no tracking.">
+<link rel="icon" href="data:,">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1f2a36;
+    line-height: 1.5;
+  }
+  a { color: inherit; }
+
+  /* ── Nav ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #0f172a; color: #e2e8f0;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  }
+  .nav-brand { font-weight: 800; font-size: 1.05em; letter-spacing: .3px; text-decoration: none; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+  .nav-links { display: flex; gap: 20px; align-items: center; }
+  .nav-links a { text-decoration: none; color: #cbd5e1; font-size: .88em; font-weight: 600; }
+  .nav-links a:hover { color: #fff; }
+  .nav-links .btn-nav {
+    background: #0284c7; color: #fff; padding: 7px 14px; border-radius: 6px;
+  }
+  .nav-links .btn-nav:hover { background: #0369a1; color: #fff; }
+  .nav-gh { color: #94a3b8; font-size: .82em; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 64px 20px 48px;
+    background: linear-gradient(180deg, #0f172a 0%, #14213b 60%, #f5f7fa 100%);
+    color: #fff;
+  }
+  .hero h1 { font-size: 2.3em; font-weight: 800; letter-spacing: -.5px; margin-bottom: 14px; }
+  .hero h1 span { color: #38bdf8; }
+  .hero p { font-size: 1.08em; color: #cbd5e1; max-width: 640px; margin: 0 auto 26px; }
+  .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+  .badge {
+    font-size: .76em; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+    background: rgba(255,255,255,.08); color: #93c5fd; border: 1px solid rgba(148,197,253,.3);
+  }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 26px; border-radius: 8px; font-weight: 700; font-size: .95em;
+    text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-primary { background: #0284c7; color: #fff; box-shadow: 0 6px 18px rgba(2,132,199,.4); }
+  .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(2,132,199,.5); }
+  .cta-secondary { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+  .cta-secondary:hover { background: rgba(255,255,255,.18); }
+
+  /* ── Section shell ── */
+  section { padding: 56px 20px; max-width: 1180px; margin: 0 auto; }
+  .section-head { text-align: center; margin-bottom: 36px; }
+  .section-head h2 { font-size: 1.65em; font-weight: 800; margin-bottom: 8px; }
+  .section-head p { color: #5b6b7a; font-size: .98em; max-width: 560px; margin: 0 auto; }
+
+  /* ── Template gallery ── */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(15,23,42,.08); border: 1px solid #e6eaf0;
+    display: flex; flex-direction: column;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(15,23,42,.14); }
+
+  .card-preview {
+    height: 190px; padding: 14px;
+    display: flex; align-items: stretch; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .mini-resume {
+    width: 100%; height: 100%; background: #fff; border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .mini-header { padding: 8px 10px 5px; }
+  .mini-name { height: 7px; width: 62%; border-radius: 2px; margin-bottom: 4px; }
+  .mini-role { height: 4px; width: 80%; border-radius: 2px; opacity: .55; }
+  .mini-body { flex: 1; display: grid; grid-template-columns: 34% 1fr; }
+  .mini-side { padding: 6px 6px 6px 10px; }
+  .mini-main { padding: 6px 8px 6px 6px; }
+  .mini-bar { height: 4px; border-radius: 2px; margin-bottom: 5px; opacity: .85; }
+  .mini-bar.short { width: 55%; }
+  .mini-bar.med { width: 75%; }
+  .mini-bar.full { width: 92%; }
+  .mini-line { height: 3px; border-radius: 2px; margin-bottom: 4px; opacity: .35; }
+  .mini-tag { display: inline-block; height: 8px; width: 20px; border-radius: 2px; margin: 0 2px 3px 0; opacity: .5; }
+
+  /* Classic preview: dark sidebar */
+  .prev-classic .mini-side { background: #111d40; }
+  .prev-classic .mini-name, .prev-classic .mini-bar.head { background: #1e40af; }
+  .prev-classic .mini-side .mini-bar, .prev-classic .mini-side .mini-tag { background: #d7e2ec; }
+  .prev-classic .mini-side .mini-line { background: #82a0b8; }
+  .prev-classic .mini-header { border-bottom: 2px solid #1e40af; }
+
+  /* Minimal preview: tinted sidebar */
+  .prev-minimal .mini-side { background: #e8f2fa; }
+  .prev-minimal .mini-name { background: #0f6ea8; }
+  .prev-minimal .mini-side .mini-bar, .prev-minimal .mini-side .mini-tag { background: #0f6ea8; }
+  .prev-minimal .mini-side .mini-line { background: #5b6b7a; }
+  .prev-minimal .mini-header { border-bottom: 1px solid rgba(31,42,54,.18); }
+
+  /* Modern preview: colored header band */
+  .prev-modern .mini-header { background: #0c2b24; padding-bottom: 8px; }
+  .prev-modern .mini-name { background: #fff; }
+  .prev-modern .mini-role { background: #34d399; opacity: 1; }
+  .prev-modern .mini-side { background: #0c2b24; }
+  .prev-modern .mini-side .mini-bar, .prev-modern .mini-side .mini-tag { background: #e7f3ef; }
+  .prev-modern .mini-side .mini-line { background: #6fae9c; }
+
+  .mini-main .mini-bar { background: #334155; }
+  .mini-main .mini-line { background: #334155; }
+
+  .card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .card-title { font-weight: 700; font-size: 1.02em; }
+  .card-desc { font-size: .85em; color: #5b6b7a; flex: 1; }
+  .theme-dots { display: flex; gap: 6px; margin: 2px 0 4px; }
+  .dot { width: 15px; height: 15px; border-radius: 50%; border: 1px solid rgba(0,0,0,.08); cursor: pointer; }
+  .dot.active { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px #0284c7; }
+  .card-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: #0284c7; color: #fff; text-decoration: none; font-weight: 700;
+    font-size: .85em; padding: 9px 0; border-radius: 6px; margin-top: 4px;
+  }
+  .card-cta:hover { background: #0369a1; }
+
+  /* ── How it works ── */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
+  .step { background: #fff; border-radius: 12px; padding: 22px; border: 1px solid #e6eaf0; }
+  .step-num {
+    width: 34px; height: 34px; border-radius: 50%; background: #0284c7; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; margin-bottom: 12px;
+  }
+  .step h3 { font-size: 1em; margin-bottom: 6px; }
+  .step p { font-size: .87em; color: #5b6b7a; }
+
+  /* ── Features ── */
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .feature { background: #fff; border: 1px solid #e6eaf0; border-radius: 10px; padding: 18px 20px; }
+  .feature .emoji { font-size: 1.5em; margin-bottom: 8px; display: block; }
+  .feature h3 { font-size: .96em; margin-bottom: 5px; }
+  .feature p { font-size: .84em; color: #5b6b7a; }
+
+  /* ── Guide teaser ── */
+  .guide-teaser {
+    background: #0f172a; color: #fff; border-radius: 16px;
+    padding: 42px 32px; text-align: center;
+  }
+  .guide-teaser h2 { font-size: 1.5em; margin-bottom: 10px; }
+  .guide-teaser p { color: #cbd5e1; max-width: 560px; margin: 0 auto 22px; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 30px 20px 40px; color: #8a96a3; font-size: .82em;
+  }
+  footer a { color: #0284c7; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">📄 Resume Builder</a>
+  <div class="nav-links">
+    <a href="#templates">Templates</a>
+    <a href="guide.html">Guide</a>
+    <a href="https://github.com/estin68/resume-builder" class="nav-gh" target="_blank" rel="noopener">GitHub ↗</a>
+    <a href="editor.html" class="btn-nav">Open Editor</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-badges">
+    <span class="badge">🔓 Free &amp; Open Source</span>
+    <span class="badge">🔒 Privacy-First — Runs in Your Browser</span>
+    <span class="badge">🚫 No Sign-up</span>
+  </div>
+  <h1>Build a great résumé,<br><span>right in your browser.</span></h1>
+  <p>Pick a template, edit your name, experience, and skills inline, then export a clean, ATS-friendly résumé as HTML or PDF — no accounts, no servers, nothing stored except on your own device.</p>
+  <div class="hero-ctas">
+    <a href="#templates" class="cta cta-primary">🎨 Browse Templates</a>
+    <a href="guide.html" class="cta cta-secondary">📘 Read the Resume Guide</a>
+  </div>
+</header>
+
+<section id="templates">
+  <div class="section-head">
+    <h2>Choose a template to start</h2>
+    <p>Each template shares the same powerful editor — pick any layout, then customize colors and fonts freely once you're inside.</p>
+  </div>
+
+  <div class="gallery">
+
+    <!-- Classic -->
+    <div class="card">
+      <div class="card-preview prev-classic" id="preview-classic">
+        <div class="mini-resume">
+          <div class="mini-header">
+            <div class="mini-name head"></div>
+            <div class="mini-role"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-side">
+              <div class="mini-bar short"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar short" style="margin-top:8px;"></div>
+              <div class="mini-tag"></div><div class="mini-tag"></div><div class="mini-tag"></div>
+            </div>
+            <div class="mini-main">
+              <div class="mini-bar med"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar full" style="margin-top:6px;"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Classic</div>
+        <div class="card-desc">A traditional dark sidebar layout with bold section headers. Professional and easy to scan — great for corporate and technical roles.</div>
+        <div class="theme-dots" data-template="classic">
+          <span class="dot active" style="background:#1e40af" data-theme="navy" title="Navy"></span>
+          <span class="dot" style="background:#0f766e" data-theme="forest" title="Forest"></span>
+          <span class="dot" style="background:#7e22ce" data-theme="purple" title="Purple"></span>
+          <span class="dot" style="background:#b91c1c" data-theme="crimson" title="Crimson"></span>
+        </div>
+        <a href="editor.html?template=classic&theme=navy&font=helv" class="card-cta">Use this template →</a>
+      </div>
+    </div>
+
+    <!-- Minimal -->
+    <div class="card">
+      <div class="card-preview prev-minimal" id="preview-minimal">
+        <div class="mini-resume">
+          <div class="mini-header">
+            <div class="mini-name head"></div>
+            <div class="mini-role"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-side">
+              <div class="mini-bar short"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar short" style="margin-top:8px;"></div>
+              <div class="mini-tag"></div><div class="mini-tag"></div><div class="mini-tag"></div>
+            </div>
+            <div class="mini-main">
+              <div class="mini-bar med"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar full" style="margin-top:6px;"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Minimal</div>
+        <div class="card-desc">A light, airy layout with a subtly tinted sidebar. Clean and modern — works well for design, product, and startup roles.</div>
+        <div class="theme-dots" data-template="minimal">
+          <span class="dot active" style="background:#0f6ea8" data-theme="ocean" title="Ocean"></span>
+          <span class="dot" style="background:#059669" data-theme="emerald" title="Emerald"></span>
+          <span class="dot" style="background:#d97706" data-theme="amber" title="Amber"></span>
+          <span class="dot" style="background:#334155" data-theme="slate" title="Slate"></span>
+        </div>
+        <a href="editor.html?template=minimal&theme=ocean&font=system" class="card-cta">Use this template →</a>
+      </div>
+    </div>
+
+    <!-- Modern -->
+    <div class="card">
+      <div class="card-preview prev-modern" id="preview-modern">
+        <div class="mini-resume">
+          <div class="mini-header">
+            <div class="mini-name head"></div>
+            <div class="mini-role"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-side">
+              <div class="mini-bar short"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar short" style="margin-top:8px;"></div>
+              <div class="mini-tag"></div><div class="mini-tag"></div><div class="mini-tag"></div>
+            </div>
+            <div class="mini-main">
+              <div class="mini-bar med"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+              <div class="mini-bar full" style="margin-top:6px;"></div>
+              <div class="mini-line"></div>
+              <div class="mini-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Modern</div>
+        <div class="card-desc">A colored header band with a matching solid sidebar for extra visual impact. Great for creative, marketing, and leadership roles.</div>
+        <div class="theme-dots" data-template="modern">
+          <span class="dot active" style="background:#0f766e" data-theme="forest" title="Forest"></span>
+          <span class="dot" style="background:#be123c" data-theme="rose" title="Rose"></span>
+          <span class="dot" style="background:#4338ca" data-theme="indigo" title="Indigo"></span>
+          <span class="dot" style="background:#0d9488" data-theme="teal" title="Teal"></span>
+        </div>
+        <a href="editor.html?template=modern&theme=forest&font=trebuchet" class="card-cta">Use this template →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>How it works</h2>
+    <p>From blank template to downloadable résumé in a few minutes.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Pick a template</h3>
+      <p>Choose a layout and starting color theme from the gallery above.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Edit inline</h3>
+      <p>Click ✏️ Edit and type directly on the résumé — no forms or JSON to fill out.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Customize freely</h3>
+      <p>Add/remove experience, skills, and bullets. Switch themes, fonts, and layout anytime.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Export</h3>
+      <p>Save a self-contained HTML file, or export directly to a one-page PDF.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Why this résumé builder?</h2>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <span class="emoji">🔒</span>
+      <h3>Privacy-first</h3>
+      <p>Everything runs client-side. Your draft is stored only in your browser's local storage — never uploaded anywhere.</p>
+    </div>
+    <div class="feature">
+      <span class="emoji">🎨</span>
+      <h3>14 themes · 15 fonts</h3>
+      <p>Mix and match color palettes and font stacks with any of the layout templates.</p>
+    </div>
+    <div class="feature">
+      <span class="emoji">📏</span>
+      <h3>One-page fit gauge</h3>
+      <p>A live meter shows how full your page is, so your résumé stays print-ready on a single A4 page.</p>
+    </div>
+    <div class="feature">
+      <span class="emoji">💾</span>
+      <h3>Portable HTML export</h3>
+      <p>Download a fully self-contained HTML file you can reopen, keep editing, or send to anyone.</p>
+    </div>
+    <div class="feature">
+      <span class="emoji">🖨️</span>
+      <h3>Clean PDF export</h3>
+      <p>Uses your browser's native print dialog for crisp, one-page PDF output — no plugins required.</p>
+    </div>
+    <div class="feature">
+      <span class="emoji">🧩</span>
+      <h3>No dependencies</h3>
+      <p>Pure HTML/CSS/JS. Works offline, forkable, and easy to self-host or customize.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="guide-teaser">
+    <h2>📘 Not sure what to write?</h2>
+    <p>Read our short, practical résumé guide covering structure, quantifying impact, and staying ATS-friendly before you start editing.</p>
+    <a href="guide.html" class="cta cta-primary">Read the Guide →</a>
+  </div>
+</section>
+
+<footer>
+  Free &amp; open source under the MIT License · <a href="https://github.com/estin68/resume-builder" target="_blank" rel="noopener">View on GitHub</a>
+</footer>
+
+<script>
+  // Theme dot swatches: clicking a dot updates that card's "Use this template" link
+  document.querySelectorAll('.theme-dots').forEach(group => {
+    const card = group.closest('.card');
+    const link = card.querySelector('.card-cta');
+    const template = group.dataset.template;
+    group.querySelectorAll('.dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        group.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        const theme = dot.dataset.theme;
+        const url = new URL(link.getAttribute('href'), window.location.href);
+        url.searchParams.set('theme', theme);
+        link.setAttribute('href', 'editor.html?' + url.searchParams.toString());
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
