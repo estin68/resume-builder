@@ -39,6 +39,12 @@
     background: #0b1220; color: #94a3b8; font-weight: 600; border: 1px solid #334155;
   }
   .status-tag.active { background: #064e3b; color: #6ee7b7; border-color: #047857; }
+  .sample-tag {
+    font-size: .72em; padding: 2px 9px; border-radius: 12px;
+    background: #1e293b; color: #93c5fd; font-weight: 600; border: 1px solid #334155;
+    display: none;
+  }
+  .sample-tag.show { display: inline-block; }
 
   .btn {
     background: #334155; color: #f1f5f9; border: 1px solid #475569;
@@ -341,6 +347,7 @@
     <div class="tb-left">
       <a href="index.html" class="tb-title">📄 Resume Builder</a>
       <span id="statusTag" class="status-tag">Read-Only</span>
+      <span id="sampleTag" class="sample-tag"></span>
     </div>
     <div class="gauge" title="Content height vs one A4 page. Keep ≤ 100% to fit on a single page.">
       <span class="gauge-label">Page fit</span>
@@ -391,6 +398,13 @@
       <option value="minimal">Minimal</option>
       <option value="modern">Modern</option>
     </select>
+    <select id="sampleSel" class="ctl" onchange="loadSampleFromSelect(this.value)" title="Load example content">
+      <option value="">📋 Load example…</option>
+      <option value="qa">🧪 QA Engineer</option>
+      <option value="fullstack">💻 Senior Full-Stack Engineer</option>
+      <option value="manager">🧭 Engineering Manager</option>
+      <option value="fresh">🎓 Fresh Graduate</option>
+    </select>
     <button class="btn btn-outline" onclick="resetAll()" title="Clear saved draft, theme, font &amp; template">↺ Reset</button>
     <button id="undoResetBtn" class="btn btn-warning" onclick="undoReset()" style="display: none;" title="Restore the draft from before the last reset">↩️ Undo Reset</button>
     <button class="btn btn-primary" onclick="saveHtmlFile()">💾 Save HTML</button>
@@ -400,7 +414,7 @@
   <div class="tb-hint">
     Tip: click <b>✏️ Edit</b> to modify any text · use <b>+ add</b> under lists to grow them ·
     <b>+ Add Experience</b> to insert a new role (move ↑/↓, delete ✕) · select text then <b>🔗 Link</b> to add a hyperlink ·
-    keep <b>Page fit ≤ 100%</b> before exporting.
+    try <b>📋 Load example…</b> to see a filled-in sample resume · keep <b>Page fit ≤ 100%</b> before exporting.
   </div>
 </div>
 
@@ -567,6 +581,7 @@
   const page = document.getElementById('resumePage');
   const editBtn = document.getElementById('editBtn');
   const statusTag = document.getElementById('statusTag');
+  const sampleTag = document.getElementById('sampleTag');
   const toast = document.getElementById('toast');
   const gaugeFill = document.getElementById('gaugeFill');
   const gaugeLabel = document.getElementById('gaugeLabel');
@@ -578,6 +593,7 @@
 
   let isEditing = false;
   let toastTimer = null;
+  let currentSampleKey = '';
 
   /* ══════════════════ THEME / FONT LIBRARIES ══════════════════ */
   const THEME_VARS = {
@@ -613,6 +629,592 @@
     bookantiqua: "'Book Antiqua', Palatino, 'Century Schoolbook', serif",
     candara:     "Candara, 'Segoe UI', Tahoma, Arial, sans-serif",
     lucida:      "'Lucida Sans', 'Lucida Grande', 'Segoe UI', sans-serif"
+  };
+
+  /* ══════════════════ EXAMPLE RESUMES (BEST-PRACTICE SAMPLES) ══════════════════
+     Fictional names/companies. Content follows the resume-writing guide:
+     action verb + what you did + measurable result, grouped skills, concise summary. */
+  const SAMPLES = {
+
+    qa: {
+      theme: 'teal', font: 'calibri', template: 'minimal',
+      label: '🧪 QA Engineer',
+      name: 'SARAH CHEN',
+      headline: 'QA Automation Engineer | Test Strategy · CI/CD · API &amp; UI Automation',
+      columnsHtml: `
+        <aside class="sidebar">
+          <section class="side-sec">
+            <h2 class="editable">Contact</h2>
+            <div class="contact-block">
+              <div class="editable">sarah.chen@email.com</div>
+              <div class="editable">+1 415 555 0132</div>
+              <div class="editable">San Francisco, CA</div>
+              <div class="editable"><a href="https://linkedin.com/in/sarahchenqa" target="_blank" rel="noopener">linkedin.com/in/sarahchenqa</a></div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Education</h2>
+            <div class="edu-item">
+              <div class="editable edu-name">B.S. Computer Science</div>
+              <div class="editable edu-school">San Jose State University</div>
+              <div class="editable edu-date">2015 – 2019</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Certifications</h2>
+            <div class="cert-item">
+              <div class="editable cert-name">ISTQB Certified Tester – Foundation Level</div>
+              <div class="editable cert-date">Obtained 2020</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Skills</h2>
+            <div class="skill-group">
+              <span class="skill-label editable">Testing Tools</span>
+              <ul class="tag-list" data-addable="" id="qa-skill-tools">
+                <li class="editable">Selenium WebDriver</li>
+                <li class="editable">Playwright</li>
+                <li class="editable">Cypress</li>
+                <li class="editable">Postman</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Languages &amp; Frameworks</span>
+              <ul class="tag-list" data-addable="" id="qa-skill-lang">
+                <li class="editable">Python</li>
+                <li class="editable">JavaScript</li>
+                <li class="editable">Java</li>
+                <li class="editable">PyTest / TestNG</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">CI/CD &amp; DevOps</span>
+              <ul class="tag-list" data-addable="" id="qa-skill-cicd">
+                <li class="editable">Jenkins</li>
+                <li class="editable">GitHub Actions</li>
+                <li class="editable">Docker</li>
+                <li class="editable">Git</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Practices</span>
+              <ul class="tag-list" data-addable="" id="qa-skill-practices">
+                <li class="editable">Test Planning</li>
+                <li class="editable">Risk-Based Testing</li>
+                <li class="editable">Regression Testing</li>
+                <li class="editable">Performance Testing</li>
+              </ul>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Languages</h2>
+            <ul class="plain-list" data-addable="" id="qa-lang-list">
+              <li class="editable">English — Fluent</li>
+              <li class="editable">Mandarin — Native</li>
+            </ul>
+          </section>
+        </aside>
+        <main class="main">
+          <section class="main-sec">
+            <h2 class="editable">Professional Summary</h2>
+            <div class="summary">
+              <p class="editable">QA Automation Engineer with 6+ years of experience building scalable test automation frameworks for web and API applications. Reduced regression testing time by 70% through parallelized Selenium/Playwright suites integrated into CI/CD. Passionate about shifting quality left and partnering closely with developers.</p>
+            </div>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Key Achievements</h2>
+            <ul class="bullets">
+              <li class="editable"><b>Test Automation Framework:</b> Designed and built a Python/Playwright framework from scratch, increasing automated regression coverage from 35% to 90% within 8 months.</li>
+              <li class="editable"><b>Release Quality:</b> Reduced production defect escape rate by 45% by introducing risk-based test prioritization and mandatory smoke suites in the CI pipeline.</li>
+              <li class="editable"><b>Cross-Team Enablement:</b> Trained 12 engineers across 3 squads on writing and maintaining automated tests, embedding a "quality is everyone's job" culture.</li>
+            </ul>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Professional Experience</h2>
+            <div id="experienceList">
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Senior QA Automation Engineer</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">BrightPath Software</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Jan 2022 – Present</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Owned end-to-end test strategy for a 15-microservice fintech platform, cutting full regression cycle time from 3 days to 4 hours via parallel execution on Selenium Grid + Docker.</li>
+                  <li class="editable">Built a reusable API testing library (Python + PyTest) covering 200+ endpoints, catching 30+ critical defects before release each quarter.</li>
+                  <li class="editable">Integrated automated UI, API, and contract tests into GitHub Actions, blocking merges on failed smoke suites and reducing hotfixes by 60%.</li>
+                  <li class="editable">Mentored 4 junior QA engineers, standardizing code review practices for test scripts.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">QA Engineer</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Nimbus Retail Systems</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Jun 2019 – Dec 2021</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Automated 500+ manual regression test cases using Selenium/Java, saving the team ~25 hours of manual testing per release cycle.</li>
+                  <li class="editable">Partnered with developers to implement contract testing (Pact), reducing integration-related production incidents by 35%.</li>
+                  <li class="editable">Authored test plans and traceability matrices for 10+ major feature releases, ensuring 100% requirement coverage.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      `
+    },
+
+    fullstack: {
+      theme: 'indigo', font: 'helv', template: 'classic',
+      label: '💻 Senior Full-Stack Engineer',
+      name: 'ALEX RIVERA',
+      headline: 'Senior Software Engineer (Full-Stack) | React · Node.js · AWS · Distributed Systems',
+      columnsHtml: `
+        <aside class="sidebar">
+          <section class="side-sec">
+            <h2 class="editable">Contact</h2>
+            <div class="contact-block">
+              <div class="editable">alex.rivera@email.com</div>
+              <div class="editable">+1 512 555 0198</div>
+              <div class="editable">Austin, TX</div>
+              <div class="editable"><a href="https://linkedin.com/in/alexrivera-dev" target="_blank" rel="noopener">linkedin.com/in/alexrivera-dev</a></div>
+              <div class="editable"><a href="https://github.com/alexrivera" target="_blank" rel="noopener">github.com/alexrivera</a></div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Education</h2>
+            <div class="edu-item">
+              <div class="editable edu-name">B.S. Computer Engineering</div>
+              <div class="editable edu-school">University of Texas at Austin</div>
+              <div class="editable edu-date">2013 – 2017</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Certifications</h2>
+            <div class="cert-item">
+              <div class="editable cert-name">AWS Certified Solutions Architect – Associate</div>
+              <div class="editable cert-date">Obtained 2023</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Skills</h2>
+            <div class="skill-group">
+              <span class="skill-label editable">Frontend</span>
+              <ul class="tag-list" data-addable="" id="fs-skill-frontend">
+                <li class="editable">React</li>
+                <li class="editable">TypeScript</li>
+                <li class="editable">Next.js</li>
+                <li class="editable">Redux</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Backend</span>
+              <ul class="tag-list" data-addable="" id="fs-skill-backend">
+                <li class="editable">Node.js</li>
+                <li class="editable">Python</li>
+                <li class="editable">GraphQL</li>
+                <li class="editable">REST APIs</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Data &amp; Infra</span>
+              <ul class="tag-list" data-addable="" id="fs-skill-infra">
+                <li class="editable">PostgreSQL</li>
+                <li class="editable">Redis</li>
+                <li class="editable">Kafka</li>
+                <li class="editable">Docker</li>
+                <li class="editable">Kubernetes</li>
+                <li class="editable">AWS</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Practices</span>
+              <ul class="tag-list" data-addable="" id="fs-skill-practices">
+                <li class="editable">Microservices</li>
+                <li class="editable">System Design</li>
+                <li class="editable">CI/CD</li>
+                <li class="editable">TDD</li>
+              </ul>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Languages</h2>
+            <ul class="plain-list" data-addable="" id="fs-lang-list">
+              <li class="editable">English — Fluent</li>
+              <li class="editable">Spanish — Fluent</li>
+            </ul>
+          </section>
+        </aside>
+        <main class="main">
+          <section class="main-sec">
+            <h2 class="editable">Professional Summary</h2>
+            <div class="summary">
+              <p class="editable">Senior full-stack engineer with 8+ years building high-throughput web applications and distributed backend systems. Led the redesign of a checkout platform serving 2M+ monthly users, improving conversion by 18% and cutting p95 latency by 55%. Enjoys mentoring engineers and driving technical strategy.</p>
+            </div>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Key Achievements</h2>
+            <ul class="bullets">
+              <li class="editable"><b>Platform Scalability:</b> Re-architected a monolithic order service into 6 microservices, reducing deployment time from 45 minutes to 5 minutes and enabling independent team releases.</li>
+              <li class="editable"><b>Performance Optimization:</b> Diagnosed and resolved a database bottleneck affecting checkout, cutting p95 response time from 1.8s to 800ms and reducing cart abandonment by 12%.</li>
+              <li class="editable"><b>Technical Leadership:</b> Led the frontend migration from a legacy jQuery app to React/TypeScript, improving feature lead time by 40% and reducing production UI bugs by 50%.</li>
+            </ul>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Professional Experience</h2>
+            <div id="experienceList">
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Senior Software Engineer</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Vertex Commerce</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Mar 2021 – Present</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Led a team of 5 engineers to rebuild the checkout flow in React/Next.js, increasing conversion rate by 18% and reducing page load time by 2.1s.</li>
+                  <li class="editable">Designed and implemented an event-driven order-processing pipeline (Kafka + Node.js), handling 3M+ events/day with 99.95% uptime.</li>
+                  <li class="editable">Introduced automated load testing (k6) into CI/CD, catching 3 major performance regressions before they reached production.</li>
+                  <li class="editable">Mentored 3 mid-level engineers through structured 1:1s and code reviews; 2 were promoted within a year.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Software Engineer</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Fielder Analytics</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Jul 2017 – Feb 2021</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Built a GraphQL API gateway consolidating 8 legacy REST services, reducing average client integration time from 2 weeks to 3 days.</li>
+                  <li class="editable">Migrated core services from AWS EC2 to ECS/Fargate, cutting infrastructure costs by 30% while improving deploy frequency 4x.</li>
+                  <li class="editable">Implemented a Redis caching layer for high-read endpoints, reducing database load by 65% during peak traffic.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      `
+    },
+
+    manager: {
+      theme: 'charcoal', font: 'trebuchet', template: 'modern',
+      label: '🧭 Engineering Manager',
+      name: 'JORDAN PATEL',
+      headline: 'Engineering Manager | Team Leadership · Product Delivery · Platform Strategy',
+      columnsHtml: `
+        <aside class="sidebar">
+          <section class="side-sec">
+            <h2 class="editable">Contact</h2>
+            <div class="contact-block">
+              <div class="editable">jordan.patel@email.com</div>
+              <div class="editable">+1 646 555 0177</div>
+              <div class="editable">New York, NY</div>
+              <div class="editable"><a href="https://linkedin.com/in/jordanpatel-em" target="_blank" rel="noopener">linkedin.com/in/jordanpatel-em</a></div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Education</h2>
+            <div class="edu-item">
+              <div class="editable edu-name">M.S. Computer Science</div>
+              <div class="editable edu-school">Columbia University</div>
+              <div class="editable edu-date">2011 – 2013</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Certifications</h2>
+            <div class="cert-item">
+              <div class="editable cert-name">Certified Scrum Master (CSM)</div>
+              <div class="editable cert-date">Obtained 2019</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Skills</h2>
+            <div class="skill-group">
+              <span class="skill-label editable">Leadership</span>
+              <ul class="tag-list" data-addable="" id="mgr-skill-leadership">
+                <li class="editable">Team Building</li>
+                <li class="editable">Performance Management</li>
+                <li class="editable">Hiring &amp; Onboarding</li>
+                <li class="editable">Mentorship</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Delivery</span>
+              <ul class="tag-list" data-addable="" id="mgr-skill-delivery">
+                <li class="editable">Roadmap Planning</li>
+                <li class="editable">Agile / Scrum</li>
+                <li class="editable">OKRs</li>
+                <li class="editable">Stakeholder Management</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Technical</span>
+              <ul class="tag-list" data-addable="" id="mgr-skill-technical">
+                <li class="editable">Architecture Reviews</li>
+                <li class="editable">Cloud (AWS/GCP)</li>
+                <li class="editable">CI/CD Strategy</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Tools</span>
+              <ul class="tag-list" data-addable="" id="mgr-skill-tools">
+                <li class="editable">Jira</li>
+                <li class="editable">Confluence</li>
+                <li class="editable">Linear</li>
+                <li class="editable">Looker</li>
+              </ul>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Languages</h2>
+            <ul class="plain-list" data-addable="" id="mgr-lang-list">
+              <li class="editable">English — Fluent</li>
+              <li class="editable">Hindi — Fluent</li>
+            </ul>
+          </section>
+        </aside>
+        <main class="main">
+          <section class="main-sec">
+            <h2 class="editable">Professional Summary</h2>
+            <div class="summary">
+              <p class="editable">Engineering manager with 10+ years in software engineering, including 4+ years leading cross-functional teams of 8–15 engineers. Track record of shipping platform initiatives on time while improving team velocity and retention. Balances hands-on technical judgment with strong people leadership.</p>
+            </div>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Key Achievements</h2>
+            <ul class="bullets">
+              <li class="editable"><b>Team Scaling &amp; Retention:</b> Grew engineering team from 6 to 16 engineers over 18 months while maintaining 95% annual retention, well above company average.</li>
+              <li class="editable"><b>Delivery Predictability:</b> Implemented quarterly OKR planning and sprint health metrics, improving on-time delivery of roadmap commitments from 60% to 92%.</li>
+              <li class="editable"><b>Platform Reliability:</b> Sponsored a reliability initiative that reduced production incidents by 55% and improved on-call engineer satisfaction scores by 40%.</li>
+            </ul>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Professional Experience</h2>
+            <div id="experienceList">
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Engineering Manager</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Beacon Health Tech</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Feb 2021 – Present</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Led 3 squads (14 engineers) delivering a patient-scheduling platform used by 200+ clinics, hitting all 4 major roadmap milestones in 2023 on schedule.</li>
+                  <li class="editable">Redesigned the hiring pipeline (structured interviews + scorecards), reducing time-to-hire from 45 to 24 days while improving offer-acceptance rate to 85%.</li>
+                  <li class="editable">Partnered with Product and Design leadership to establish a quarterly OKR process, improving cross-team delivery predictability by 30%.</li>
+                  <li class="editable">Coached 2 senior engineers into engineering lead roles through individualized growth plans and stretch project assignments.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Senior Software Engineer → Team Lead</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Meridian Logistics</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Aug 2016 – Jan 2021</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Promoted to Team Lead after 2 years; managed a 6-person team building real-time fleet-tracking services.</li>
+                  <li class="editable">Led migration of the core tracking service to Kubernetes, improving deployment frequency from weekly to daily and reducing downtime incidents by 45%.</li>
+                  <li class="editable">Introduced blameless postmortems and on-call rotation improvements, reducing average incident resolution time from 3 hours to 45 minutes.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      `
+    },
+
+    fresh: {
+      theme: 'sky', font: 'verdana', template: 'minimal',
+      label: '🎓 Fresh Graduate',
+      name: 'TAYLOR KIM',
+      headline: 'Aspiring Software Engineer | Java · Python · Web Development',
+      columnsHtml: `
+        <aside class="sidebar">
+          <section class="side-sec">
+            <h2 class="editable">Contact</h2>
+            <div class="contact-block">
+              <div class="editable">taylor.kim@email.com</div>
+              <div class="editable">+1 206 555 0143</div>
+              <div class="editable">Seattle, WA</div>
+              <div class="editable"><a href="https://linkedin.com/in/taylorkim-dev" target="_blank" rel="noopener">linkedin.com/in/taylorkim-dev</a></div>
+              <div class="editable"><a href="https://github.com/taylorkim" target="_blank" rel="noopener">github.com/taylorkim</a></div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Education</h2>
+            <div class="edu-item">
+              <div class="editable edu-name">B.S. Computer Science (GPA 3.8/4.0)</div>
+              <div class="editable edu-school">University of Washington</div>
+              <div class="editable edu-date">2021 – 2025</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Certifications</h2>
+            <div class="cert-item">
+              <div class="editable cert-name">AWS Certified Cloud Practitioner</div>
+              <div class="editable cert-date">Obtained 2025</div>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Skills</h2>
+            <div class="skill-group">
+              <span class="skill-label editable">Languages</span>
+              <ul class="tag-list" data-addable="" id="grad-skill-lang">
+                <li class="editable">Java</li>
+                <li class="editable">Python</li>
+                <li class="editable">JavaScript</li>
+                <li class="editable">SQL</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Frameworks &amp; Tools</span>
+              <ul class="tag-list" data-addable="" id="grad-skill-tools">
+                <li class="editable">React</li>
+                <li class="editable">Spring Boot</li>
+                <li class="editable">Git</li>
+                <li class="editable">Docker</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Coursework</span>
+              <ul class="tag-list" data-addable="" id="grad-skill-coursework">
+                <li class="editable">Data Structures &amp; Algorithms</li>
+                <li class="editable">Databases</li>
+                <li class="editable">Operating Systems</li>
+                <li class="editable">Software Engineering</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="skill-label editable">Soft Skills</span>
+              <ul class="tag-list" data-addable="" id="grad-skill-soft">
+                <li class="editable">Collaboration</li>
+                <li class="editable">Communication</li>
+                <li class="editable">Problem Solving</li>
+              </ul>
+            </div>
+          </section>
+          <section class="side-sec">
+            <h2 class="editable">Languages</h2>
+            <ul class="plain-list" data-addable="" id="grad-lang-list">
+              <li class="editable">English — Fluent</li>
+              <li class="editable">Korean — Native</li>
+            </ul>
+          </section>
+        </aside>
+        <main class="main">
+          <section class="main-sec">
+            <h2 class="editable">Professional Summary</h2>
+            <div class="summary">
+              <p class="editable">Recent Computer Science graduate with hands-on experience building full-stack applications through internships and academic projects. Strong foundation in data structures, algorithms, and web development. Eager to contribute to a collaborative engineering team and grow as a software engineer.</p>
+            </div>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Key Achievements</h2>
+            <ul class="bullets">
+              <li class="editable"><b>Capstone Project:</b> Built a full-stack event-management app (React + Spring Boot + PostgreSQL) used by 200+ students during a university hackathon, placing 2nd out of 40 teams.</li>
+              <li class="editable"><b>Open Source Contribution:</b> Contributed 5 merged pull requests to an open-source scheduling library, improving test coverage by 15%.</li>
+              <li class="editable"><b>Academic Excellence:</b> Graduated with a 3.8/4.0 GPA while working 15 hrs/week as a teaching assistant for Data Structures.</li>
+            </ul>
+          </section>
+          <section class="main-sec">
+            <h2 class="editable">Experience</h2>
+            <div id="experienceList">
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Software Engineering Intern</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">Cascade Cloud Solutions</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Jun 2024 – Aug 2024</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Built a REST API endpoint (Java/Spring Boot) for a customer notification feature, reducing manual support tickets by 20%.</li>
+                  <li class="editable">Wrote 40+ unit and integration tests, increasing code coverage for the notifications module from 55% to 85%.</li>
+                  <li class="editable">Collaborated with a team of 5 engineers using Agile/Scrum, participating in daily stand-ups and sprint planning.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+              <div class="job">
+                <div class="job-head">
+                  <div class="editable job-role">Teaching Assistant – Data Structures &amp; Algorithms</div>
+                  <div class="job-sub">
+                    <span class="editable job-company">University of Washington</span>
+                    <span class="job-sep"> · </span>
+                    <span class="editable job-dates">Sep 2023 – Jun 2024</span>
+                  </div>
+                </div>
+                <ul class="bullets">
+                  <li class="editable">Held weekly office hours for 30+ students, improving average homework scores by 12% through targeted debugging guidance.</li>
+                  <li class="editable">Graded and provided feedback on 200+ student assignments per term, maintaining consistent rubric application across the course.</li>
+                </ul>
+                <div class="job-controls">
+                  <button type="button" class="mini-btn" onclick="jobAddBullet(this)">+ Bullet</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,-1)" title="Move up">↑</button>
+                  <button type="button" class="mini-btn" onclick="jobMove(this,1)" title="Move down">↓</button>
+                  <button type="button" class="mini-btn danger" onclick="jobDelete(this)" title="Remove role">✕</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      `
+    }
   };
 
   /* Bake the chosen theme + font as inline styles so they are embedded in the
@@ -678,6 +1280,48 @@
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return false;
     try { page.innerHTML = saved; return true; } catch (e) { return false; }
+  }
+
+  /* ══════════════════ EXAMPLE RESUME LOADING ══════════════════ */
+  function setSampleTag(key) {
+    currentSampleKey = key || '';
+    if (key && SAMPLES[key]) {
+      sampleTag.textContent = 'Example: ' + SAMPLES[key].label;
+      sampleTag.classList.add('show');
+    } else {
+      sampleTag.textContent = '';
+      sampleTag.classList.remove('show');
+    }
+    const sel = document.getElementById('sampleSel');
+    if (sel) sel.value = currentSampleKey;
+  }
+
+  function applySample(key, opts) {
+    const data = SAMPLES[key];
+    if (!data) return;
+    const nameEl = page.querySelector('.page-header .name');
+    const headlineEl = page.querySelector('.page-header .headline');
+    const columns = page.querySelector('.columns');
+    if (nameEl) nameEl.innerHTML = data.name;
+    if (headlineEl) headlineEl.innerHTML = data.headline;
+    if (columns) columns.innerHTML = data.columnsHtml;
+    if (data.theme) setTheme(data.theme);
+    if (data.font) setFont(data.font);
+    if (data.template) setTemplate(data.template);
+    setSampleTag(key);
+    if (isEditing) { renderAddButtons(); renderItemButtons(); }
+    if (!opts || !opts.silent) showToast('Loaded example: ' + data.label + ' — feel free to edit any part of it.');
+    saveDraft();
+    updateFit();
+  }
+
+  function loadSampleFromSelect(key) {
+    if (!key) return;
+    if (!confirm('Load the "' + (SAMPLES[key] ? SAMPLES[key].label : key) + '" example? This will replace the current content on the page (theme, font & layout will also switch to match).')) {
+      setSampleTag(currentSampleKey);
+      return;
+    }
+    applySample(key);
   }
 
   /* ══════════════════ EDIT MODE ══════════════════ */
@@ -971,7 +1615,7 @@
     backupCurrentState();
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PREFS_KEY);
-    location.reload();
+    location.href = location.pathname;
   }
 
   function showUndoResetIfBackup() {
@@ -1069,11 +1713,27 @@
 
   /* ══════════════════ INIT ══════════════════ */
   window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const sampleKey = params.get('sample');
+
+    if (sampleKey && SAMPLES[sampleKey]) {
+      applySample(sampleKey, { silent: true });
+    }
+
     const hasQueryStyle = applyQueryParams();
-    if (!hasQueryStyle) restorePrefs();
+
+    if (!sampleKey && !hasQueryStyle) restorePrefs();
     savePrefs();
     bakeStyle();
-    if (restoreDraft()) showToast('Restored saved draft from this browser.');
+
+    if (sampleKey && SAMPLES[sampleKey]) {
+      // Starting from an example: ignore any previously saved draft for a clean start.
+      localStorage.removeItem(STORAGE_KEY);
+      showToast('Loaded example: ' + SAMPLES[sampleKey].label + ' — feel free to edit any part of it.');
+    } else if (restoreDraft()) {
+      showToast('Restored saved draft from this browser.');
+    }
+
     showUndoResetIfBackup();
     setEditing(false);
 
@@ -1081,6 +1741,7 @@
     document.getElementById('themeSel').value = page.dataset.theme || 'ocean';
     document.getElementById('fontSel').value = page.dataset.font || 'system';
     document.getElementById('tplSel').value = page.dataset.template || 'classic';
+    setSampleTag(currentSampleKey);
 
     page.addEventListener('input', () => { saveDraft(); updateFit(); });
     window.addEventListener('resize', updateFit);

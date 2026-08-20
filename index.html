@@ -141,7 +141,28 @@
   }
   .card-cta:hover { background: #0369a1; }
 
+  /* ── Example resumes ── */
+  .examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 22px; }
+  .ex-card {
+    background: #fff; border-radius: 12px; padding: 22px 20px; border: 1px solid #e6eaf0;
+    box-shadow: 0 4px 16px rgba(15,23,42,.06);
+    display: flex; flex-direction: column; gap: 10px;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .ex-card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(15,23,42,.12); }
+  .ex-emoji { font-size: 1.8em; }
+  .ex-title { font-weight: 700; font-size: 1.02em; }
+  .ex-desc { font-size: .85em; color: #5b6b7a; flex: 1; }
+  .ex-meta { font-size: .76em; color: #94a3b8; }
+  .ex-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: #0f172a; color: #fff; text-decoration: none; font-weight: 700;
+    font-size: .85em; padding: 9px 0; border-radius: 6px; margin-top: 4px;
+  }
+  .ex-cta:hover { background: #1e293b; }
+
   /* ── How it works ── */
+
   .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
   .step { background: #fff; border-radius: 12px; padding: 22px; border: 1px solid #e6eaf0; }
   .step-num {
@@ -179,7 +200,9 @@
   <a href="index.html" class="nav-brand">📄 Resume Builder</a>
   <div class="nav-links">
     <a href="#templates">Templates</a>
+    <a href="#examples">Examples</a>
     <a href="guide.html">Guide</a>
+
     <a href="https://github.com/estin68/resume-builder" class="nav-gh" target="_blank" rel="noopener">GitHub ↗</a>
     <a href="editor.html" class="btn-nav">Open Editor</a>
   </div>
@@ -330,9 +353,53 @@
   </div>
 </section>
 
+<section id="examples">
+  <div class="section-head">
+    <h2>See it filled in: example résumés</h2>
+    <p>Not sure where to start? Load a complete, best-practice example — written using the action verb + result + metric formula from our guide — then edit it into your own.</p>
+  </div>
+
+  <div class="examples">
+
+    <div class="ex-card">
+      <div class="ex-emoji">🧪</div>
+      <div class="ex-title">QA Engineer</div>
+      <div class="ex-desc">Test automation framework ownership, CI/CD integration, and defect-reduction metrics — Minimal template, Teal theme.</div>
+      <div class="ex-meta">Sarah Chen · Senior QA Automation Engineer</div>
+      <a href="editor.html?sample=qa" class="ex-cta">Load this example →</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-emoji">💻</div>
+      <div class="ex-title">Senior Full-Stack Engineer</div>
+      <div class="ex-desc">Platform scalability, performance optimization, and technical leadership bullets — Classic template, Indigo theme.</div>
+      <div class="ex-meta">Alex Rivera · Senior Software Engineer</div>
+      <a href="editor.html?sample=fullstack" class="ex-cta">Load this example →</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-emoji">🧭</div>
+      <div class="ex-title">Engineering Manager</div>
+      <div class="ex-desc">Team scaling, delivery predictability, and hiring/retention impact — Modern template, Charcoal theme.</div>
+      <div class="ex-meta">Jordan Patel · Engineering Manager</div>
+      <a href="editor.html?sample=manager" class="ex-cta">Load this example →</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-emoji">🎓</div>
+      <div class="ex-title">Fresh Graduate</div>
+      <div class="ex-desc">Internship, coursework, and academic-project achievements framed with real metrics — Minimal template, Sky theme.</div>
+      <div class="ex-meta">Taylor Kim · Aspiring Software Engineer</div>
+      <a href="editor.html?sample=fresh" class="ex-cta">Load this example →</a>
+    </div>
+
+  </div>
+</section>
+
 <section>
   <div class="section-head">
     <h2>How it works</h2>
+
     <p>From blank template to downloadable résumé in a few minutes.</p>
   </div>
   <div class="steps">

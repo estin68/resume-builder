@@ -9,7 +9,9 @@ A **free, open-source, privacy-first resume builder** that runs entirely in your
 ## ✨ Features
 
 - **Template gallery** — choose from multiple layout + color combinations (Classic, Minimal, Modern) before you start editing.
+- **Example résumés** — load a complete, best-practice-written example for QA Engineer, Senior Full-Stack Engineer, Engineering Manager, or Fresh Graduate roles, then edit it into your own.
 - **Inline WYSIWYG editor** — click **✏️ Edit** and type directly on the resume; no forms, no JSON, no drag-and-drop builder complexity.
+
 - **Add / remove / reorder** — add new job entries, skill tags, bullet points, education, certifications, or volunteering items; move experience blocks up/down; delete anything you don't need.
 - **Theme & font picker** — 14 color themes and 15 font stacks, mix-and-match with any layout template.
 - **One-page fit gauge** — a live indicator shows how full the page is so your resume stays print-ready on a single A4 page.
